@@ -4,33 +4,38 @@
 A mobile-first block puzzle game where players drag colored pieces onto a grid to fill animal/food/vehicle/structure/shape silhouettes. Think tangram meets pixel art. Single HTML file, vanilla JS, GSAP animations. Ready for Capacitor wrapping → Android/iOS.
 
 ## Tech Stack
-- **Single file:** `index.html` (752 lines)
-- **JS:** Vanilla, no framework
-- **Animations:** GSAP 3.12.5 (loaded from cdnjs.cloudflare.com CDN)
-- **Font:** Outfit (Google Fonts CDN)
-- **Styling:** CSS custom properties for full light/dark theme support
-- **No build step.** Open the HTML in a browser and it works.
+- **Static, no build step** — open `index.html` in a browser and it works.
+- **JS:** Vanilla, no framework. Three globals-based files loaded in order: `config.js` → `js/graphics.js` → `js/game.js`.
+- **Animations:** GSAP 3.12.5 (local `gsap.min.js`, CDN fallback)
+- **Fonts/icons:** Outfit + Material Icons (Google Fonts CDN)
+- **Styling:** `css/styles.css`, CSS custom properties for full light/dark theme support
+- **Backend (optional):** Supabase REST leaderboard — see `BACKEND.md`
 
-## File Structure (all in one file)
+## File Structure
 ```
-index.html
-├── <style>        — All CSS (~90 lines, minified-ish)
-├── <body>         — Static HTML skeleton (menu, game, ghost, bg orbs)
-└── <script>       — All JS (~650 lines)
-    ├── ICONS {}            — Inline SVG icons for categories
-    ├── CATEGORIES []       — 5 categories × 10 shapes each (50 total)
-    ├── PALETTE []          — 15-color array for pieces
-    ├── Core utils          — mkRng, ky, parseShape, decompose, buildPieceSVG, buildThumbSVG
-    ├── State (S)           — Single global state object
-    ├── Menu system         — buildMenu, renderCarousel, animateCarousel (horizontal swipe carousel)
+index.html            — markup + asset links (loads css, config, graphics, game)
+config.js             — Supabase keys (gitignored; template in config.example.js)
+css/styles.css        — all CSS (menu, game, splash, leaderboard, themes)
+js/graphics.js        — ICONS, CATEGORIES (5×10 shapes), PALETTE, board dims,
+                        parseShape, buildPieceSVG, buildThumbSVG
+js/game.js            — everything else:
+    ├── Core utils          — mkRng, ky, decompose, levelDiff/Pcs/Hints
+    ├── Storage + esc       — loadStored, saveStored, esc (XSS-safe)
+    ├── Leaderboard         — Supabase REST top()/submit()
+    ├── Sound               — Web Audio synth (pick/place/bad/hint/win)
+    ├── Native guards       — block zoom + pull-to-refresh
+    ├── State (S)           — single global state object (incl. moves counter)
+    ├── Menu system         — buildMenu, renderCarousel, animateCarousel
     ├── Game init           — startCategory, startQuick, initLevel, transitionToGame
     ├── Game UI             — buildGame, buildNextPreview, buildBoard, buildTray
     ├── Drag & drop         — startDrag, onMove, onUp, clearHover, canPlace, getCell
     ├── Piece logic         — placePiece, removePiece, shakeBoard
     ├── Hint system         — useHint, clearHint, updateHintBtn
     ├── Progress/win        — updateProgress, checkWin, celebrateWin, spawnParticles
+    ├── Score/leaderboard   — showScorePanel, submitScore, loadLeaderboard
     ├── Navigation          — goToMenu, goNextLevel, resetLevel
-    └── Theme               — setTheme (light/dark toggle)
+    ├── Theme + Sound toggle
+    └── Splash              — showSplash, hideSplash (how-to-play)
 ```
 
 ## Game Mechanics

@@ -1,0 +1,3 @@
+# Local Supabase keys — keep out of the public repo.
+# (Still served on the deployed site; that's fine — RLS protects the data.)
+config.js

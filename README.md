@@ -64,12 +64,22 @@ Full **light/dark theme** via ~30 CSS custom properties. Toggle in the top-right
 
 ## Tech Stack
 
-- **Single file:** [index.html](index.html) — all HTML, CSS, and JS in one ~750-line file.
 - **Vanilla JavaScript** — no framework, no bundler.
 - **[GSAP 3.12.5](gsap.min.js)** — drag ghosts, hint pulses, win celebrations, theme transitions.
-- **Outfit** font (Google Fonts CDN).
+- **Outfit** font + **Material Icons** (Google Fonts CDN).
 - **CSS custom properties** for theming.
-- **No build step** — works offline after the first load.
+- **Supabase** (REST, no SDK) — optional per-category leaderboard. See [BACKEND.md](BACKEND.md).
+- **No build step** — open `index.html` and it runs.
+
+### File layout
+
+| File | Role |
+|------|------|
+| [index.html](index.html) | Markup + asset links |
+| [css/styles.css](css/styles.css) | All styling (light/dark themes) |
+| [js/graphics.js](js/graphics.js) | Icons, shape data, color palette, SVG rendering |
+| [js/game.js](js/game.js) | Game logic, drag & drop, leaderboard, UI wiring |
+| `config.js` | Supabase keys (gitignored — copy from [config.example.js](config.example.js)) |
 
 Designed to be wrapped with **Capacitor** for Android/iOS distribution.
 

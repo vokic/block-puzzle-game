@@ -22,48 +22,48 @@
 [data-theme="light"]{--bg:#f0f1f5;--bg2:#e4e5ec;--text:#1a1a2e;--sub:#6b6f8a;--accent:#5046e5;--green:#00a844;--pink:#e03060;--gold:#d4a017;--card:rgba(0,0,0,.03);--card-border:rgba(0,0,0,.07);--cell-bg:rgba(0,0,0,.04);--cell-border:rgba(0,0,0,.08);--shine:rgba(255,255,255,.35);--tray:rgba(0,0,0,.03);--tray-border:rgba(0,0,0,.06);--board-bg:rgba(0,0,0,.025);--board-border:rgba(0,0,0,.08);--board-shadow:0 12px 40px rgba(0,0,0,.08);--orb-opacity:.04;--qp-bg:linear-gradient(135deg,rgba(80,70,229,.06),rgba(224,48,96,.06));--qp-border:rgba(80,70,229,.15);--btn-bg:rgba(0,0,0,.04);--btn-border:rgba(0,0,0,.08);--btn-hover:rgba(0,0,0,.07);--badge-bg:rgba(0,0,0,.05);--overlay-bg:rgba(0,168,68,.07);--overlay-border:rgba(0,168,68,.2);--win-btn-sec-bg:rgba(0,0,0,.05);--win-btn-sec-border:rgba(0,0,0,.08)}
 html,body{height:100%;overflow-x:hidden}
 body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);display:flex;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-#app{width:100%;max-width:480px;min-height:100vh;position:relative;overflow:hidden}
+#app{width:100%;max-width:500px;min-height:100vh;position:relative;overflow:hidden}
 .bg-orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:var(--orb-opacity);pointer-events:none;z-index:0}
 
 /* MENU */
-#menu{display:flex;flex-direction:column;align-items:center;padding:28px 14px 60px;position:relative;z-index:10;justify-content:center;min-height:100vh}
-#menu h1{font-size:28px;font-weight:900;letter-spacing:-1px;margin:2px 0;background:linear-gradient(135deg,#6c63ff,#ff3d7f,#ffd54f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-#menu .sub{color:var(--sub);font-size:11px;letter-spacing:1px;margin-bottom:28px}
-.carousel{width:100%;max-width:320px;display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
-.carousel-cat-name{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--sub);margin-bottom:14px;transition:color .3s}
-.carousel-row{display:flex;align-items:center;gap:12px;width:100%;justify-content:center;margin-bottom:14px}
-.carousel-arrow{width:44px;height:44px;border-radius:12px;border:1px solid var(--btn-border);background:var(--btn-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-family:'Outfit',sans-serif}
+#menu{display:flex;flex-direction:column;align-items:center;padding:36px 18px 72px;position:relative;z-index:10;justify-content:center;min-height:100vh}
+#menu h1{font-size:38px;font-weight:900;letter-spacing:-1.2px;margin:4px 0;background:linear-gradient(135deg,#6c63ff,#ff3d7f,#ffd54f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#menu .sub{color:var(--sub);font-size:13px;letter-spacing:1px;margin-bottom:34px}
+.carousel{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;margin-bottom:30px}
+.carousel-cat-name{font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--sub);margin-bottom:18px;transition:color .3s}
+.carousel-row{display:flex;align-items:center;gap:18px;width:100%;justify-content:center;margin-bottom:18px}
+.carousel-arrow{width:54px;height:54px;border-radius:15px;border:1px solid var(--btn-border);background:var(--btn-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-family:'Outfit',sans-serif}
 .carousel-arrow:hover{background:var(--btn-hover);border-color:var(--accent)}
-.carousel-arrow svg{width:18px;height:18px;stroke:var(--text);stroke-width:2.5;fill:none}
-.carousel-preview{width:160px;height:160px;border-radius:16px;border:1px solid var(--card-border);background:var(--card);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;padding:12px}
-.carousel-icon{display:flex;align-items:center;justify-content:center;margin-bottom:6px}
-.carousel-icon svg{width:24px;height:24px}
+.carousel-arrow svg{width:22px;height:22px;stroke:var(--text);stroke-width:2.5;fill:none}
+.carousel-preview{width:210px;height:210px;border-radius:22px;border:1px solid var(--card-border);background:var(--card);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;padding:16px}
+.carousel-icon{display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.carousel-icon svg{width:30px;height:30px}
 .carousel-shape{display:flex;align-items:center;justify-content:center}
-.carousel-progress{font-size:24px;font-weight:900;letter-spacing:-1px;margin-top:10px}
-.carousel-progress-sub{font-size:10px;color:var(--sub);font-weight:600}
-.carousel-levels{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;max-width:280px}
-.carousel-dot{width:24px;height:24px;border-radius:6px;border:1px solid var(--btn-border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s}
+.carousel-progress{font-size:32px;font-weight:900;letter-spacing:-1px;margin-top:14px}
+.carousel-progress-sub{font-size:11px;color:var(--sub);font-weight:600}
+.carousel-levels{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:24px;max-width:340px}
+.carousel-dot{width:30px;height:30px;border-radius:8px;border:1px solid var(--btn-border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s}
 .carousel-dot:hover{background:var(--btn-hover)}
 .carousel-dot.done{border-color:rgba(0,230,118,.25);color:var(--green)}
 .carousel-dot.current{border-color:rgba(108,99,255,.4);color:var(--accent);background:rgba(108,99,255,.1)}
 .carousel-dot.locked{opacity:.3;cursor:default}
-.play-btn{padding:12px 40px;border-radius:12px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:.5px;transition:all .2s;margin-bottom:24px}
+.play-btn{padding:16px 54px;border-radius:15px;border:none;font-size:18px;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:.5px;transition:all .2s;margin-bottom:28px}
 .play-btn:hover{transform:translateY(-1px)}
-.divider{width:60px;height:1px;background:var(--card-border);margin-bottom:20px}
-.quick-play{width:100%;max-width:300px;text-align:center}
-.quick-play .qp-title{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--sub);margin-bottom:10px}
-.quick-play .qp-btns{display:flex;gap:6px}
-.qp-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--btn-border);background:var(--btn-bg);cursor:pointer;text-align:center;font-family:'Outfit',sans-serif;transition:all .2s}
+.divider{width:80px;height:1px;background:var(--card-border);margin-bottom:24px}
+.quick-play{width:100%;max-width:360px;text-align:center}
+.quick-play .qp-title{font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--sub);margin-bottom:14px}
+.quick-play .qp-btns{display:flex;gap:9px}
+.qp-btn{flex:1;padding:15px 10px;border-radius:13px;border:1px solid var(--btn-border);background:var(--btn-bg);cursor:pointer;text-align:center;font-family:'Outfit',sans-serif;transition:all .2s}
 .qp-btn:hover{background:var(--btn-hover)}
-.qp-btn .ql{font-size:11px;font-weight:800;letter-spacing:.5px}
-.qp-btn .qi{font-size:9px;color:var(--sub);margin-top:2px}
+.qp-btn .ql{font-size:15px;font-weight:800;letter-spacing:.5px}
+.qp-btn .qi{font-size:11px;color:var(--sub);margin-top:3px}
 
 /* GAME */
 #game{display:none;flex-direction:column;align-items:center;padding:8px 8px 100px;position:relative;z-index:10;width:100%}
 .game-header{display:flex;align-items:center;width:100%;justify-content:space-between;padding:4px 0 6px}
-.hdr-btn{background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:8px;padding:7px 12px;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.hdr-btn{background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:9px;padding:9px 14px;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
 .hdr-btn:hover{background:var(--btn-hover);color:var(--text)}
-.game-info{font-size:16px;font-weight:700}
+.game-info{font-size:19px;font-weight:700}
 
 .game-main{display:flex;flex-direction:column;align-items:center;width:100%;max-width:400px}
 
@@ -79,7 +79,7 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .hint-btn{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;border:1px solid rgba(255,212,84,.25);background:rgba(255,212,84,.06);color:var(--gold);font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;flex-shrink:0}
 .hint-btn:hover:not(:disabled){background:rgba(255,212,84,.12)}
 .hint-btn:disabled{opacity:.35;cursor:default;border-color:var(--card-border);color:var(--sub)}
-.level-badge{font-size:9px;font-weight:800;color:var(--sub);background:var(--badge-bg);padding:3px 8px;border-radius:6px;margin-bottom:6px;letter-spacing:.5px}
+.level-badge{font-size:11px;font-weight:800;color:var(--sub);background:var(--badge-bg);padding:4px 10px;border-radius:7px;margin-bottom:8px;letter-spacing:.5px}
 
 #board-wrap{position:relative;border-radius:14px;background:var(--board-bg);border:2px solid var(--board-border);box-shadow:var(--board-shadow);flex-shrink:0;padding:10px}
 .cell{position:absolute;border-radius:5px;width:var(--cell);height:var(--cell);background:var(--cell-bg);border:1px solid var(--card-border);overflow:hidden;touch-action:none}
@@ -101,15 +101,20 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .win-icon-btn:hover{background:rgba(0,200,100,.12)}
 .win-icon-btn svg{width:20px;height:20px;stroke:var(--green);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .particle{position:fixed;pointer-events:none;z-index:998;border-radius:50%}
-.theme-toggle{position:fixed;top:10px;right:10px;z-index:100;width:36px;height:36px;border-radius:10px;border:1px solid var(--card-border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'Outfit',sans-serif}
-.theme-toggle:hover{background:var(--cell-bg);border-color:var(--accent)}
-.theme-toggle .t-icon{width:16px;height:16px;border-radius:50%;transition:all .3s}
-.theme-toggle .t-icon.dark{background:var(--text);box-shadow:inset -4px -2px 0 0 var(--bg)}
-.theme-toggle .t-icon.light{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.sound-toggle,.theme-toggle{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:100;width:42px;height:42px;border-radius:12px;border:1px solid var(--card-border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'Outfit',sans-serif}
+.theme-toggle{right:calc(env(safe-area-inset-right,0px) + 12px)}
+.sound-toggle{right:calc(env(safe-area-inset-right,0px) + 62px)}
+.sound-toggle:hover,.theme-toggle:hover{background:var(--cell-bg);border-color:var(--accent)}
+.theme-toggle .t-icon{width:18px;height:18px;border-radius:50%;transition:all .3s}
+.theme-toggle .t-icon.dark{background:var(--text);box-shadow:inset -5px -2px 0 0 var(--bg)}
+.theme-toggle .t-icon.light{background:var(--gold);box-shadow:0 0 7px var(--gold)}
+.sound-toggle svg{width:21px;height:21px;stroke:var(--text);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sound-toggle.muted svg{stroke:var(--sub);opacity:.65}
 </style>
 </head>
 <body>
 <div id="app">
+<button class="sound-toggle" id="sound-toggle" title="Toggle sound"></button>
 <button class="theme-toggle" id="theme-toggle" title="Toggle theme"><div class="t-icon dark"></div></button>
 <div class="bg-orb" style="width:300px;height:300px;background:#6c63ff;top:-50px;left:-80px"></div>
 <div class="bg-orb" style="width:250px;height:250px;background:#ff3d7f;bottom:10%;right:-60px"></div>
@@ -279,9 +284,37 @@ function buildThumbSVG(shape,size,color){
 // ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
-const LS_PROGRESS='bp-progress',LS_THEME='bp-theme';
+const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound';
 function loadStored(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
 function saveStored(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+// ════════════════════════════════════════
+//  SOUND — Web Audio synth (no files, offline)
+// ════════════════════════════════════════
+const Sound=(()=>{
+  let ctx=null,enabled=loadStored(LS_SOUND,true);
+  function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(ctx.state==='suspended')ctx.resume();return ctx;}
+  function tone(freq,dur,type,vol,when){
+    const c=ac();if(!c)return;const t=c.currentTime+(when||0);
+    const o=c.createOscillator(),g=c.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol,t+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.03);
+  }
+  return{
+    get enabled(){return enabled},
+    init(){ac();},
+    toggle(){enabled=!enabled;saveStored(LS_SOUND,enabled);if(enabled){ac();this.place();}return enabled;},
+    pick(){if(enabled)tone(440,.07,'triangle',.10);},
+    place(){if(!enabled)return;tone(523.25,.09,'triangle',.16);tone(784,.11,'sine',.10,.04);},
+    bad(){if(!enabled)return;tone(160,.16,'sawtooth',.12);tone(120,.18,'sawtooth',.07,.02);},
+    hint(){if(!enabled)return;tone(880,.12,'sine',.12);tone(1174.7,.14,'sine',.09,.09);},
+    win(){if(!enabled)return;[523.25,659.25,784,1046.5].forEach((f,i)=>tone(f,.45,'triangle',.15,i*.11));tone(1568,.5,'sine',.08,.46);}
+  };
+})();
+window.addEventListener('pointerdown',()=>Sound.init(),{once:true});
 let S={
   screen:'menu',mode:null, // 'category'|'quick'
   catIdx:0,levelIdx:0,diffIdx:0,
@@ -305,7 +338,7 @@ let menuCatIdx = 0;
 function buildMenu(){
   const el=document.getElementById('menu');
   el.innerHTML=`
-    <div style="font-size:11px;font-weight:900;letter-spacing:4px;color:var(--accent);opacity:.6">PUZZLE</div>
+    <div style="font-size:13px;font-weight:900;letter-spacing:5px;color:var(--accent);opacity:.6">PUZZLE</div>
     <h1>BLOCK PUZZLE</h1>
     <p class="sub">Build shapes, piece by piece</p>
     <div class="carousel" id="carousel"></div>
@@ -342,13 +375,13 @@ function renderCarousel(dir){
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <div class="carousel-preview" id="car-preview" style="border-color:${cat.color}30">
-        ${buildThumbSVG(nextShape,130,cat.color)}
+        ${buildThumbSVG(nextShape,172,cat.color)}
       </div>
       <button class="carousel-arrow" id="car-right">
         <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
       </button>
     </div>
-    <div class="carousel-progress" style="color:${cat.color}">${prog}<span style="font-size:13px;color:var(--sub);font-weight:600"> / 10</span></div>
+    <div class="carousel-progress" style="color:${cat.color}">${prog}<span style="font-size:16px;color:var(--sub);font-weight:600"> / 10</span></div>
     <div class="carousel-levels" id="car-levels"></div>
     <button class="play-btn" id="car-play" style="background:${cat.color};color:#fff">
       ${allDone?'Replay':'Continue — Level '+(next+1)}
@@ -548,7 +581,7 @@ function buildTray(){
 //  DRAG & DROP
 // ════════════════════════════════════════
 function startDrag(idx,e){
-  if(S.won)return;e.preventDefault();e.stopPropagation();clearHint();
+  if(S.won)return;e.preventDefault();e.stopPropagation();clearHint();Sound.pick();
   const cx=e.clientX,cy=e.clientY;
   if(S.placed[idx])removePiece(idx);
   const piece=S.pieces[idx],nr=piece.normalized;
@@ -615,7 +648,7 @@ function canPlace(cells,bR,bC,excl){for(const[r,c]of cells){const k=ky(r+bR,c+bC
 function getCell(r,c){return cellMap.get(ky(r,c));}
 
 function placePiece(idx,bR,bC){
-  clearHint();
+  clearHint();Sound.place();if(navigator.vibrate)navigator.vibrate(9);
   const piece=S.pieces[idx],col=PALETTE[piece.colorIdx%PALETTE.length];
   Object.keys(S.board).forEach(k=>{if(S.board[k]===idx)delete S.board[k];});
   piece.normalized.forEach(([r,c])=>{S.board[ky(r+bR,c+bC)]=idx;});
@@ -639,7 +672,7 @@ function removePiece(idx){
   });
   updateProgress();
 }
-function shakeBoard(){gsap.to('#board-wrap',{x:-5,duration:.05,yoyo:true,repeat:5,ease:'power1.inOut',onComplete:()=>gsap.set('#board-wrap',{x:0})});}
+function shakeBoard(){Sound.bad();if(navigator.vibrate)navigator.vibrate(22);gsap.to('#board-wrap',{x:-5,duration:.05,yoyo:true,repeat:5,ease:'power1.inOut',onComplete:()=>gsap.set('#board-wrap',{x:0})});}
 
 // ════════════════════════════════════════
 //  HINT
@@ -648,7 +681,7 @@ function useHint(){
   if(S.hintsLeft<=0||S.won)return;
   const up=S.pieces.map((_,i)=>i).filter(i=>!S.placed[i]);if(!up.length)return;
   const pick=up[Math.floor(Math.random()*up.length)];
-  S.hintsLeft--;S.activeHint=pick;updateHintBtn();
+  S.hintsLeft--;S.activeHint=pick;updateHintBtn();Sound.hint();
   const piece=S.pieces[pick],col=PALETTE[piece.colorIdx%PALETTE.length];
   piece.cells.forEach(([r,c])=>{const cell=getCell(r,c);if(!cell||cell.classList.contains('filled'))return;
     cell.style.border=`2px solid ${col}88`;
@@ -692,6 +725,7 @@ function checkWin(){
   celebrateWin();
 }
 function celebrateWin(){
+  Sound.win();if(navigator.vibrate)navigator.vibrate([0,40,30,40,30,70]);
   document.querySelectorAll('.cell.filled').forEach((cell,i)=>{
     gsap.to(cell,{scale:1.12,duration:.18,delay:i*.012,ease:'power2.out',onComplete:()=>gsap.to(cell,{scale:1,duration:.4,ease:'elastic.out(1.2,.3)'})});
     gsap.fromTo(cell,{boxShadow:`0 0 0px ${cell.style.background}`},{boxShadow:`0 0 16px ${cell.style.background}`,duration:.3,delay:i*.012,yoyo:true,repeat:1});
@@ -769,6 +803,20 @@ document.getElementById('theme-toggle').addEventListener('click',()=>{
   setTheme(!isDark);
   gsap.fromTo('#theme-toggle',{rotation:-180,scale:.7},{rotation:0,scale:1,duration:.4,ease:'back.out(2)'});
 });
+
+// Sound toggle
+function updateSoundBtn(){
+  const b=document.getElementById('sound-toggle');
+  b.classList.toggle('muted',!Sound.enabled);
+  b.innerHTML=Sound.enabled
+    ?'<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19.07 5.93a10 10 0 0 1 0 12.14"/></svg>'
+    :'<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>';
+}
+document.getElementById('sound-toggle').addEventListener('click',()=>{
+  Sound.toggle();updateSoundBtn();
+  gsap.fromTo('#sound-toggle',{scale:.7},{scale:1,duration:.35,ease:'back.out(2)'});
+});
+updateSoundBtn();
 
 setTheme(loadStored(LS_THEME,'dark')!=='light');
 buildMenu();

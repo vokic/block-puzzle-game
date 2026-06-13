@@ -664,10 +664,13 @@ const LS_INTRO='bp-intro';
 function showSplash(){
   const s=document.getElementById('splash');s.classList.add('show');
   gsap.set(s,{opacity:1});
-  if(document.hidden)return; // tab backgrounded: skip entrance anim, content stays visible (CSS default)
-  gsap.from('.splash-title',{opacity:0,y:-12,duration:.4,ease:'power3.out'});
-  gsap.from('.splash-step',{opacity:0,x:-16,duration:.35,stagger:.07,delay:.1,ease:'power3.out'});
-  gsap.from('.splash-play',{opacity:0,y:10,duration:.35,delay:.5,ease:'power3.out'});
+  // Reset any stale inline styles from a previous open, then animate the whole
+  // card as one unit so no child (e.g. the Let's Play button) can get stuck hidden.
+  gsap.killTweensOf(['.splash-card','.splash-step']);
+  gsap.set(['.splash-card','.splash-step'],{clearProps:'opacity,transform'});
+  if(document.hidden)return; // tab backgrounded: skip entrance anim, content stays visible
+  gsap.fromTo('.splash-card',{opacity:0,y:14},{opacity:1,y:0,duration:.4,ease:'power3.out'});
+  gsap.from('.splash-step',{x:-14,duration:.35,stagger:.06,delay:.08,ease:'power3.out'}); // x only — never hides
 }
 function hideSplash(){
   Sound.init();
@@ -681,3 +684,16 @@ document.getElementById('help-btn').addEventListener('click',showSplash);
 setTheme(loadStored(LS_THEME,'dark')!=='light');
 buildMenu();
 if(!loadStored(LS_INTRO,false))showSplash();
+
+// Launch splash — branded image shown briefly on open; tap to skip.
+// Gracefully skipped if splash.png is missing, so it's safe to ship without the file.
+(function(){
+  const l=document.getElementById('launch'),img=l&&document.getElementById('launch-img');
+  if(!l||!img)return;
+  const kill=()=>{if(l.parentNode)l.remove();};
+  const fade=()=>{l.classList.add('hide');setTimeout(kill,550);};
+  if(img.complete&&img.naturalWidth===0)return kill();   // already failed to load
+  img.addEventListener('error',kill);                    // no splash.png → skip instantly
+  let t=setTimeout(fade,1600);
+  l.addEventListener('pointerdown',()=>{clearTimeout(t);Sound.init();fade();});
+})();

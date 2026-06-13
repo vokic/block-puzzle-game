@@ -4,7 +4,7 @@
 A mobile-first block puzzle game where players drag colored pieces onto a grid to fill animal/food/vehicle/structure/shape silhouettes. Think tangram meets pixel art. Single HTML file, vanilla JS, GSAP animations. Ready for Capacitor wrapping → Android/iOS.
 
 ## Tech Stack
-- **Single file:** `block-puzzle.html` (752 lines)
+- **Single file:** `index.html` (752 lines)
 - **JS:** Vanilla, no framework
 - **Animations:** GSAP 3.12.5 (loaded from cdnjs.cloudflare.com CDN)
 - **Font:** Outfit (Google Fonts CDN)
@@ -13,7 +13,7 @@ A mobile-first block puzzle game where players drag colored pieces onto a grid t
 
 ## File Structure (all in one file)
 ```
-block-puzzle.html
+index.html
 ├── <style>        — All CSS (~90 lines, minified-ish)
 ├── <body>         — Static HTML skeleton (menu, game, ghost, bg orbs)
 └── <script>       — All JS (~650 lines)
@@ -134,7 +134,7 @@ let S = {
 
 ### P0 — Mobile Ship (Capacitor)
 - [ ] Init Capacitor project: `npm init`, install `@capacitor/core @capacitor/cli`
-- [ ] Copy `block-puzzle.html` as `index.html` into web root
+- [ ] Use `index.html` as the web root entry point
 - [ ] `npx cap add android`
 - [ ] Add `@capacitor-community/admob` plugin
 - [ ] Implement AdMob: banner (bottom, always on), interstitial (every 3rd level complete), rewarded video ("watch for +1 hint")

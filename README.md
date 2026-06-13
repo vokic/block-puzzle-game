@@ -64,7 +64,7 @@ Full **light/dark theme** via ~30 CSS custom properties. Toggle in the top-right
 
 ## Tech Stack
 
-- **Single file:** [block-puzzle.html](block-puzzle.html) — all HTML, CSS, and JS in one ~750-line file.
+- **Single file:** [index.html](index.html) — all HTML, CSS, and JS in one ~750-line file.
 - **Vanilla JavaScript** — no framework, no bundler.
 - **[GSAP 3.12.5](gsap.min.js)** — drag ghosts, hint pulses, win celebrations, theme transitions.
 - **Outfit** font (Google Fonts CDN).
@@ -80,7 +80,7 @@ Just open the file in a browser:
 ```bash
 # any static server, or simply double-click the file
 python -m http.server
-# then visit http://localhost:8000/block-puzzle.html
+# then visit http://localhost:8000/
 ```
 
 ## Roadmap

@@ -17,6 +17,12 @@
 <script>if(typeof gsap==='undefined')document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><\/script>');</script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script>
+// ════ Supabase (leaderboard) — paste your project keys here, then redeploy ════
+// Supabase → Project Settings → API.  The anon key is meant to be public; RLS protects the data.
+window.SUPABASE_URL = '';      // e.g. 'https://abcdefgh.supabase.co'
+window.SUPABASE_ANON_KEY = ''; // your project's anon / public key
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#080816;--bg2:#0e0e24;--text:#e8eaf6;--sub:#4a4d6a;--accent:#6c63ff;--green:#00c853;--pink:#ff3d7f;--gold:#ffd54f;--cell:32px;--gap:2px;--step:34px;--card:rgba(255,255,255,.02);--card-border:rgba(255,255,255,.04);--cell-bg:rgba(255,255,255,.025);--cell-border:rgba(255,255,255,.04);--shine:rgba(255,255,255,.2);--tray:rgba(255,255,255,.015);--tray-border:rgba(255,255,255,.04);--board-bg:rgba(255,255,255,.012);--board-border:rgba(255,255,255,.04);--board-shadow:0 16px 48px rgba(0,0,0,.3);--orb-opacity:.06;--qp-bg:linear-gradient(135deg,rgba(108,99,255,.08),rgba(255,61,127,.08));--qp-border:rgba(108,99,255,.2);--btn-bg:rgba(255,255,255,.04);--btn-border:rgba(255,255,255,.07);--btn-hover:rgba(255,255,255,.08);--badge-bg:rgba(255,255,255,.04);--overlay-bg:rgba(0,230,118,.05);--overlay-border:rgba(0,230,118,.15);--win-btn-sec-bg:rgba(255,255,255,.05);--win-btn-sec-border:rgba(255,255,255,.08)}
@@ -111,12 +117,71 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .theme-toggle .material-icons.light{color:var(--gold)}
 .sound-toggle .material-icons{font-size:24px;color:var(--text)}
 .sound-toggle.muted .material-icons{color:var(--sub);opacity:.65}
+
+/* Move counter + leaderboard */
+.move-count{font-size:11px;font-weight:800;color:var(--sub);flex-shrink:0;min-width:58px;letter-spacing:.3px}
+#score-panel{display:none;flex-direction:column;align-items:center;width:100%;max-width:380px;margin-top:14px}
+.score-result{font-size:16px;font-weight:800;color:var(--text);margin-bottom:14px;text-align:center}
+.score-result b{color:var(--green)}
+.score-form{display:flex;flex-direction:column;gap:8px;width:100%;margin-bottom:16px}
+.score-input{width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--btn-border);background:var(--btn-bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;outline:none;transition:border-color .2s}
+.score-input:focus{border-color:var(--accent)}
+.score-input::placeholder{color:var(--sub)}
+.score-submit{padding:14px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.score-submit:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-1px)}
+.score-submit:disabled{opacity:.5;cursor:default}
+.lb-title{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--sub);margin-bottom:10px}
+.lb-list{width:100%;display:flex;flex-direction:column;gap:5px}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:11px;background:var(--card);border:1px solid var(--card-border)}
+.lb-row.me{border-color:var(--accent);background:rgba(108,99,255,.12)}
+.lb-rank{font-size:14px;font-weight:800;color:var(--sub);width:22px;flex-shrink:0;text-align:center}
+.lb-rank.top{color:var(--gold)}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-msg{font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.lb-moves{font-size:15px;font-weight:800;color:var(--green);flex-shrink:0}
+.lb-empty{font-size:12px;color:var(--sub);font-style:italic;text-align:center;padding:12px}
+
+/* Splash / how-to-play */
+#splash{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:36px 24px;overflow-y:auto}
+#splash.show{display:flex}
+.splash-card{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center}
+.splash-logo{font-size:13px;font-weight:900;letter-spacing:5px;color:var(--accent);opacity:.6}
+.splash-title{font-size:36px;font-weight:900;letter-spacing:-1.2px;margin:4px 0 8px;background:linear-gradient(135deg,#6c63ff,#ff3d7f,#ffd54f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.splash-sub{color:var(--sub);font-size:14px;margin-bottom:28px;text-align:center;line-height:1.4}
+.splash-steps{display:flex;flex-direction:column;gap:16px;width:100%;margin-bottom:30px}
+.splash-step{display:flex;align-items:center;gap:15px}
+.splash-step .material-icons{font-size:27px;color:var(--accent);flex-shrink:0;width:32px;text-align:center}
+.splash-step .st-txt{font-size:14.5px;color:var(--text);font-weight:600;line-height:1.35}
+.splash-step .st-txt span{color:var(--sub);font-weight:500}
+.splash-play{padding:17px 0;width:100%;border-radius:15px;border:none;font-size:18px;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:.5px;background:linear-gradient(135deg,#6c63ff,#ff3d7f);color:#fff;transition:all .2s}
+.splash-play:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.help-btn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:calc(env(safe-area-inset-left,0px) + 12px);z-index:100;width:42px;height:42px;border-radius:12px;border:1px solid var(--card-border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.help-btn:hover{background:var(--cell-bg);border-color:var(--accent)}
+.help-btn .material-icons{font-size:23px;color:var(--text)}
 </style>
 </head>
 <body>
 <div id="app">
 <button class="sound-toggle" id="sound-toggle" title="Toggle sound"></button>
 <button class="theme-toggle" id="theme-toggle" title="Toggle theme"><span class="material-icons">dark_mode</span></button>
+<button class="help-btn" id="help-btn" title="How to play"><span class="material-icons">help_outline</span></button>
+<div id="splash">
+  <div class="splash-card">
+    <div class="splash-logo">PUZZLE</div>
+    <div class="splash-title">BLOCK PUZZLE</div>
+    <div class="splash-sub">Fill each shape with colored blocks — like a tangram.</div>
+    <div class="splash-steps">
+      <div class="splash-step"><span class="material-icons">category</span><div class="st-txt">Pick a <b>category</b> and level, or tap <b>Quick Play</b>.</div></div>
+      <div class="splash-step"><span class="material-icons">touch_app</span><div class="st-txt"><b>Drag</b> pieces from the tray onto the board.</div></div>
+      <div class="splash-step"><span class="material-icons">check_circle</span><div class="st-txt"><b>Green</b> means it fits — <span>red means it doesn't.</span></div></div>
+      <div class="splash-step"><span class="material-icons">grid_view</span><div class="st-txt">Cover <b>every cell</b> of the shape to win.</div></div>
+      <div class="splash-step"><span class="material-icons">lightbulb</span><div class="st-txt">Stuck? Tap <b>Hint</b> to reveal a piece's spot.</div></div>
+      <div class="splash-step"><span class="material-icons">leaderboard</span><div class="st-txt"><b>Fewer moves</b> = a higher leaderboard rank.</div></div>
+    </div>
+    <button class="splash-play" id="splash-play">Let's Play</button>
+  </div>
+</div>
 <div class="bg-orb" style="width:300px;height:300px;background:#6c63ff;top:-50px;left:-80px"></div>
 <div class="bg-orb" style="width:250px;height:250px;background:#ff3d7f;bottom:10%;right:-60px"></div>
 <div id="menu"></div>
@@ -129,10 +194,21 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
     </div>
     <div class="level-badge" id="level-badge"></div>
     <div class="progress-row">
+      <span class="move-count" id="move-count">0 moves</span>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       <button class="hint-btn" id="hint-btn"><span style="font-size:11px;letter-spacing:.5px">HINT</span><span id="hint-count">3</span></button>
     </div>
     <div id="board-wrap"></div>
+    <div id="score-panel">
+      <div class="score-result" id="score-result"></div>
+      <div class="score-form" id="score-form">
+        <input class="score-input" id="score-name" maxlength="24" placeholder="Your name" autocomplete="off">
+        <input class="score-input" id="score-msg" maxlength="80" placeholder="Message (optional)" autocomplete="off">
+        <button class="score-submit" id="score-submit">Submit score</button>
+      </div>
+      <div class="lb-title" id="lb-title">Leaderboard</div>
+      <div class="lb-list" id="lb-list"></div>
+    </div>
     <div id="win-bar">
       <button class="win-btn primary" id="win-next">NEXT</button>
       <button class="win-btn" id="win-retry">REPLAY</button>
@@ -279,9 +355,33 @@ function buildThumbSVG(shape,size,color){
 // ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
-const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound';
+const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound',LS_NAME='bp-name';
 function loadStored(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
 function saveStored(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// ════════════════════════════════════════
+//  LEADERBOARD — Supabase REST (no SDK, no server)
+// ════════════════════════════════════════
+const SB_URL=(window.SUPABASE_URL||'').replace(/\/+$/,'');
+const SB_KEY=window.SUPABASE_ANON_KEY||'';
+const Leaderboard={
+  enabled:!!(SB_URL&&SB_KEY),
+  async top(category){
+    const url=`${SB_URL}/rest/v1/leaderboard?category=eq.${encodeURIComponent(category)}&select=name,message,moves,shape,created_at&order=moves.asc,created_at.asc&limit=10`;
+    const r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+    if(!r.ok)throw new Error('fetch '+r.status);
+    return r.json();
+  },
+  async submit(entry){
+    const r=await fetch(`${SB_URL}/rest/v1/leaderboard`,{
+      method:'POST',
+      headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},
+      body:JSON.stringify(entry)
+    });
+    if(!r.ok)throw new Error('submit '+r.status+' '+await r.text());
+  }
+};
 
 // ════════════════════════════════════════
 //  SOUND — Web Audio synth (no files, offline)
@@ -325,7 +425,7 @@ let S={
   screen:'menu',mode:null, // 'category'|'quick'
   catIdx:0,levelIdx:0,diffIdx:0,
   board:{},placed:{},pieces:[],targetCells:[],targetSet:new Set(),
-  gridW:0,gridH:0,won:false,
+  gridW:0,gridH:0,won:false,moves:0,
   completed:loadStored(LS_PROGRESS,{}), // "catIdx-levelIdx" => true
   hintsLeft:1,activeHint:null,hintTimer:null,
   dragging:null,dragOff:{x:0,y:0},_hover:null,
@@ -485,7 +585,7 @@ function initLevel(ci,li,diff){
   S.pieces=decompose(tc,np,seed);
   S.targetCells=tc;S.targetSet=new Set(tc.map(([r,c])=>ky(r,c)));
   S.gridW=gridW;S.gridH=gridH;
-  S.board={};S.placed={};S.won=false;
+  S.board={};S.placed={};S.won=false;S.moves=0;
   S.hintsLeft=levelHints(diff);S.activeHint=null;
   if(S.hintTimer)clearTimeout(S.hintTimer);
   S.dragging=null;S._hover=null;
@@ -516,6 +616,7 @@ function buildGame(){
   document.getElementById('hint-btn').onclick=useHint;
   buildBoard();buildTray();updateProgress();
   document.getElementById('win-bar').style.display='none';
+  document.getElementById('score-panel').style.display='none';
   document.getElementById('win-menu').onclick=goToMenu;
   document.getElementById('win-retry').onclick=resetLevel;
   document.getElementById('win-next').onclick=()=>{
@@ -654,7 +755,7 @@ function canPlace(cells,bR,bC,excl){for(const[r,c]of cells){const k=ky(r+bR,c+bC
 function getCell(r,c){return cellMap.get(ky(r,c));}
 
 function placePiece(idx,bR,bC){
-  clearHint();Sound.place();if(navigator.vibrate)navigator.vibrate(9);
+  clearHint();Sound.place();if(navigator.vibrate)navigator.vibrate(9);S.moves++;
   const piece=S.pieces[idx],col=PALETTE[piece.colorIdx%PALETTE.length];
   Object.keys(S.board).forEach(k=>{if(S.board[k]===idx)delete S.board[k];});
   piece.normalized.forEach(([r,c])=>{S.board[ky(r+bR,c+bC)]=idx;});
@@ -716,6 +817,7 @@ function updateHintBtn(){document.getElementById('hint-count').textContent=S.hin
 // ════════════════════════════════════════
 function updateProgress(){
   const tot=S.pieces.length,pl=Object.keys(S.placed).length;
+  document.getElementById('move-count').textContent=S.moves+(S.moves===1?' move':' moves');
   document.getElementById('progress-fill').style.width=Math.round(pl/tot*100)+'%';
   const dc=['#4cc9f0','#ffd54f','#ff3d7f'];
   document.getElementById('progress-fill').style.background=S.won?'var(--green)':`linear-gradient(90deg,#4cc9f0,${dc[S.diffIdx]})`;
@@ -749,7 +851,9 @@ function celebrateWin(){
     btns.forEach((b,i)=>{
       gsap.fromTo(b,{scale:0,opacity:0},{scale:1,opacity:1,duration:.3,delay:i*.06,ease:'back.out(2)'});
     });
+    showScorePanel();
   },delay*1000);
+  document.getElementById('next-preview').style.display='none';
   gsap.to('#tray',{opacity:0,y:15,duration:.25});
 }
 function spawnParticles(n){
@@ -762,6 +866,66 @@ function spawnParticles(n){
     p.style.left=cx+'px';p.style.top=cy+'px';document.body.appendChild(p);
     const a=(Math.PI*2*i)/n+gsap.utils.random(-.3,.3),d=gsap.utils.random(70,220);
     gsap.to(p,{x:Math.cos(a)*d,y:Math.sin(a)*d-gsap.utils.random(40,130),opacity:0,rotation:gsap.utils.random(-360,360),duration:gsap.utils.random(.7,1.4),delay:gsap.utils.random(0,.25),ease:'power2.out',onComplete:()=>p.remove()});
+  }
+}
+
+// ════════════════════════════════════════
+//  SCORE PANEL & LEADERBOARD
+// ════════════════════════════════════════
+function showScorePanel(){
+  const panel=document.getElementById('score-panel');
+  const cat=CATEGORIES[S.catIdx],shape=cat.shapes[S.levelIdx];
+  document.getElementById('score-result').innerHTML=
+    `Solved <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`;
+  document.getElementById('lb-title').textContent=cat.name+' — Top 10';
+  const form=document.getElementById('score-form');
+  if(Leaderboard.enabled){
+    form.style.display='flex';
+    const nameI=document.getElementById('score-name'),msgI=document.getElementById('score-msg'),btn=document.getElementById('score-submit');
+    nameI.value=loadStored(LS_NAME,'')||'';msgI.value='';
+    btn.disabled=false;btn.textContent='Submit score';
+    btn.onclick=submitScore;
+  }else{
+    form.style.display='none';
+  }
+  panel.style.display='flex';
+  gsap.from(panel,{opacity:0,y:12,duration:.35,delay:.15,ease:'power3.out'});
+  loadLeaderboard(null);
+}
+async function submitScore(){
+  const nameI=document.getElementById('score-name'),msgI=document.getElementById('score-msg'),btn=document.getElementById('score-submit');
+  const name=(nameI.value||'').trim().slice(0,24)||'Anon';
+  const message=(msgI.value||'').trim().slice(0,80);
+  saveStored(LS_NAME,name);
+  btn.disabled=true;btn.textContent='Submitting…';
+  const cat=CATEGORIES[S.catIdx],shape=cat.shapes[S.levelIdx];
+  try{
+    await Leaderboard.submit({category:cat.id,shape:shape.name,level:S.levelIdx,difficulty:S.diffIdx,mode:S.mode,moves:S.moves,name,message:message||null});
+    document.getElementById('score-form').style.display='none';
+    await loadLeaderboard({name,moves:S.moves,message});
+  }catch(e){
+    btn.disabled=false;btn.textContent='Retry';
+    document.getElementById('lb-list').innerHTML='<div class="lb-empty">Could not submit — check your connection.</div>';
+  }
+}
+async function loadLeaderboard(me){
+  const list=document.getElementById('lb-list');
+  if(!Leaderboard.enabled){list.innerHTML='<div class="lb-empty">Leaderboard not set up yet.</div>';return;}
+  list.innerHTML='<div class="lb-empty">Loading…</div>';
+  const cat=CATEGORIES[S.catIdx];
+  try{
+    const rows=await Leaderboard.top(cat.id);
+    if(!rows.length){list.innerHTML='<div class="lb-empty">Be the first to make the board!</div>';return;}
+    list.innerHTML=rows.map((r,i)=>{
+      const mine=me&&r.name===me.name&&r.moves===me.moves&&(r.message||'')===(me.message||'');
+      return `<div class="lb-row${mine?' me':''}">`
+        +`<div class="lb-rank${i<3?' top':''}">${i+1}</div>`
+        +`<div class="lb-info"><div class="lb-name">${esc(r.name)}</div>`
+        +(r.message?`<div class="lb-msg">${esc(r.message)}</div>`:'')+`</div>`
+        +`<div class="lb-moves">${r.moves}</div></div>`;
+    }).join('');
+  }catch(e){
+    list.innerHTML='<div class="lb-empty">Could not load leaderboard.</div>';
   }
 }
 
@@ -787,7 +951,7 @@ function goNextLevel(){
 function resetLevel(){
   clearHint();
   gsap.to('.cell.filled',{scale:0,rotation:gsap.utils.random(-15,15),duration:.2,stagger:.008,ease:'power2.in',onComplete:()=>{
-    S.board={};S.placed={};S.won=false;
+    S.board={};S.placed={};S.won=false;S.moves=0;
     S.hintsLeft=levelHints(S.diffIdx);S.activeHint=null;S.dragging=null;
     buildGame();
   }});
@@ -821,8 +985,28 @@ document.getElementById('sound-toggle').addEventListener('click',()=>{
 });
 updateSoundBtn();
 
+// Splash / how-to-play
+const LS_INTRO='bp-intro';
+function showSplash(){
+  const s=document.getElementById('splash');s.classList.add('show');
+  gsap.set(s,{opacity:1});
+  if(document.hidden)return; // tab backgrounded: skip entrance anim, content stays visible (CSS default)
+  gsap.from('.splash-title',{opacity:0,y:-12,duration:.4,ease:'power3.out'});
+  gsap.from('.splash-step',{opacity:0,x:-16,duration:.35,stagger:.07,delay:.1,ease:'power3.out'});
+  gsap.from('.splash-play',{opacity:0,y:10,duration:.35,delay:.5,ease:'power3.out'});
+}
+function hideSplash(){
+  Sound.init();
+  const s=document.getElementById('splash');
+  gsap.to(s,{opacity:0,duration:.3,ease:'power2.in',onComplete:()=>{s.classList.remove('show');gsap.set(s,{opacity:1});}});
+  saveStored(LS_INTRO,true);
+}
+document.getElementById('splash-play').addEventListener('click',hideSplash);
+document.getElementById('help-btn').addEventListener('click',showSplash);
+
 setTheme(loadStored(LS_THEME,'dark')!=='light');
 buildMenu();
+if(!loadStored(LS_INTRO,false))showSplash();
 </script>
 </body>
 </html>

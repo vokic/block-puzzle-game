@@ -69,10 +69,10 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .game-main{display:flex;flex-direction:column;align-items:center;width:100%;max-width:400px}
 
 /* Next preview */
-.next-preview{display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 14px;border-radius:10px;background:var(--card);border:1px solid var(--card-border)}
-.next-label{font-size:8px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px}
+.next-preview{display:flex;align-items:center;gap:11px;margin-top:12px;padding:11px 20px;border-radius:13px;background:var(--card);border:1px solid var(--card-border)}
+.next-label{font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px}
 .next-thumb{display:flex;align-items:center;justify-content:center}
-.next-name{font-size:10px;color:var(--sub);font-weight:600}
+.next-name{font-size:14px;color:var(--text);font-weight:700}
 
 .progress-row{display:flex;align-items:center;gap:8px;width:100%;margin-bottom:8px}
 .progress-bar{flex:1;height:3px;border-radius:2px;background:var(--card);overflow:hidden}
@@ -534,7 +534,7 @@ function buildNextPreview(){
   np.style.display='flex';
   const nextShape=CATEGORIES[S.catIdx].shapes[nextI];
   np.innerHTML=`<span class="next-label">Next</span>
-    <span class="next-thumb">${buildThumbSVG(nextShape,28)}</span>
+    <span class="next-thumb">${buildThumbSVG(nextShape,42)}</span>
     <span class="next-name">${nextShape.name}</span>`;
   gsap.from(np,{opacity:0,y:8,duration:.3,delay:.3,ease:'power3.out'});
 }

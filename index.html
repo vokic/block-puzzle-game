@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Block Puzzle</title>
 <meta name="description" content="Drag colored pieces onto a grid to recreate silhouettes of animals, food, vehicles, structures, and shapes.">
 <meta name="theme-color" content="#080816">
@@ -20,8 +20,8 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#080816;--bg2:#0e0e24;--text:#e8eaf6;--sub:#4a4d6a;--accent:#6c63ff;--green:#00c853;--pink:#ff3d7f;--gold:#ffd54f;--cell:32px;--gap:2px;--step:34px;--card:rgba(255,255,255,.02);--card-border:rgba(255,255,255,.04);--cell-bg:rgba(255,255,255,.025);--cell-border:rgba(255,255,255,.04);--shine:rgba(255,255,255,.2);--tray:rgba(255,255,255,.015);--tray-border:rgba(255,255,255,.04);--board-bg:rgba(255,255,255,.012);--board-border:rgba(255,255,255,.04);--board-shadow:0 16px 48px rgba(0,0,0,.3);--orb-opacity:.06;--qp-bg:linear-gradient(135deg,rgba(108,99,255,.08),rgba(255,61,127,.08));--qp-border:rgba(108,99,255,.2);--btn-bg:rgba(255,255,255,.04);--btn-border:rgba(255,255,255,.07);--btn-hover:rgba(255,255,255,.08);--badge-bg:rgba(255,255,255,.04);--overlay-bg:rgba(0,230,118,.05);--overlay-border:rgba(0,230,118,.15);--win-btn-sec-bg:rgba(255,255,255,.05);--win-btn-sec-border:rgba(255,255,255,.08)}
 [data-theme="light"]{--bg:#f0f1f5;--bg2:#e4e5ec;--text:#1a1a2e;--sub:#6b6f8a;--accent:#5046e5;--green:#00a844;--pink:#e03060;--gold:#d4a017;--card:rgba(0,0,0,.03);--card-border:rgba(0,0,0,.07);--cell-bg:rgba(0,0,0,.04);--cell-border:rgba(0,0,0,.08);--shine:rgba(255,255,255,.35);--tray:rgba(0,0,0,.03);--tray-border:rgba(0,0,0,.06);--board-bg:rgba(0,0,0,.025);--board-border:rgba(0,0,0,.08);--board-shadow:0 12px 40px rgba(0,0,0,.08);--orb-opacity:.04;--qp-bg:linear-gradient(135deg,rgba(80,70,229,.06),rgba(224,48,96,.06));--qp-border:rgba(80,70,229,.15);--btn-bg:rgba(0,0,0,.04);--btn-border:rgba(0,0,0,.08);--btn-hover:rgba(0,0,0,.07);--badge-bg:rgba(0,0,0,.05);--overlay-bg:rgba(0,168,68,.07);--overlay-border:rgba(0,168,68,.2);--win-btn-sec-bg:rgba(0,0,0,.05);--win-btn-sec-border:rgba(0,0,0,.08)}
-html,body{height:100%;overflow-x:hidden}
-body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);display:flex;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{height:100%;overflow-x:hidden;overscroll-behavior:none}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);display:flex;justify-content:center;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overscroll-behavior:none}
 #app{width:100%;max-width:500px;min-height:100vh;position:relative;overflow:hidden}
 .bg-orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:var(--orb-opacity);pointer-events:none;z-index:0}
 
@@ -315,6 +315,17 @@ const Sound=(()=>{
   };
 })();
 window.addEventListener('pointerdown',()=>Sound.init(),{once:true});
+
+// ════════════════════════════════════════
+//  NATIVE-FEEL GUARDS — block zoom & pull-to-refresh
+// ════════════════════════════════════════
+// iOS Safari ignores user-scalable=no, so kill pinch/gesture zoom manually
+['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault()));
+// Block multi-touch (pinch) zoom
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+// Block double-tap-to-zoom
+let _lastTap=0;
+document.addEventListener('touchend',e=>{const now=Date.now();if(now-_lastTap<=320)e.preventDefault();_lastTap=now;},{passive:false});
 let S={
   screen:'menu',mode:null, // 'category'|'quick'
   catIdx:0,levelIdx:0,diffIdx:0,

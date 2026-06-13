@@ -739,6 +739,5 @@ buildMenu();
   const fade=()=>{l.classList.add('hide');setTimeout(kill,550);reveal();};
   if(img.complete&&img.naturalWidth===0){kill();reveal();return;} // image already failed
   img.addEventListener('error',()=>{kill();reveal();});           // no splash.png → straight to instructions
-  let t=setTimeout(fade,1600);
-  l.addEventListener('pointerdown',()=>{clearTimeout(t);Sound.init();fade();}); // tap to skip
+  l.addEventListener('pointerdown',()=>{Sound.init();fade();});   // stays until the screen is tapped
 })();

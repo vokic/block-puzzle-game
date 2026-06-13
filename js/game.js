@@ -590,18 +590,60 @@ async function loadLeaderboard(me){
   try{
     const rows=await Leaderboard.top(cat.id);
     if(!rows.length){list.innerHTML='<div class="lb-empty">Be the first to make the board!</div>';return;}
-    list.innerHTML=rows.map((r,i)=>{
-      const mine=me&&r.name===me.name&&r.moves===me.moves&&(r.message||'')===(me.message||'');
-      return `<div class="lb-row${mine?' me':''}">`
-        +`<div class="lb-rank${i<3?' top':''}">${i+1}</div>`
-        +`<div class="lb-info"><div class="lb-name">${esc(r.name)}</div>`
-        +(r.message?`<div class="lb-msg">${esc(r.message)}</div>`:'')+`</div>`
-        +`<div class="lb-moves">${r.moves}</div></div>`;
-    }).join('');
+    list.innerHTML=rows.map((r,i)=>renderLbRow(r,i,me)).join('');
   }catch(e){
     list.innerHTML='<div class="lb-empty">Could not load leaderboard.</div>';
   }
 }
+function renderLbRow(r,i,me){
+  const mine=me&&r.name===me.name&&r.moves===me.moves&&(r.message||'')===(me.message||'');
+  return `<div class="lb-row${mine?' me':''}">`
+    +`<div class="lb-rank${i<3?' top':''}">${i+1}</div>`
+    +`<div class="lb-info"><div class="lb-name">${esc(r.name)}</div>`
+    +(r.message?`<div class="lb-msg">${esc(r.message)}</div>`:'')+`</div>`
+    +`<div class="lb-moves">${r.moves}</div></div>`;
+}
+
+// ════════════════════════════════════════
+//  LEADERBOARD OVERLAY (top button — browse any category)
+// ════════════════════════════════════════
+let lboCatIdx=0;
+function openLeaderboard(){
+  lboCatIdx=menuCatIdx||0;
+  document.getElementById('lb-overlay').classList.add('show');
+  buildLbTabs();loadOverlayBoard();
+  gsap.fromTo('.lbo-card',{opacity:0,scale:.95,y:10},{opacity:1,scale:1,y:0,duration:.3,ease:'power3.out'});
+}
+function closeLeaderboard(){
+  gsap.to('.lbo-card',{opacity:0,scale:.97,duration:.2,ease:'power2.in',onComplete:()=>document.getElementById('lb-overlay').classList.remove('show')});
+}
+function buildLbTabs(){
+  const t=document.getElementById('lbo-tabs');t.innerHTML='';
+  CATEGORIES.forEach((cat,i)=>{
+    const b=document.createElement('button');
+    b.className='lbo-tab'+(i===lboCatIdx?' active':'');
+    b.textContent=cat.name;
+    if(i===lboCatIdx)b.style.background=cat.color;
+    b.onclick=()=>{lboCatIdx=i;buildLbTabs();loadOverlayBoard();};
+    t.appendChild(b);
+  });
+}
+async function loadOverlayBoard(){
+  const list=document.getElementById('lbo-list');
+  if(!Leaderboard.enabled){list.innerHTML='<div class="lb-empty">Leaderboard not set up yet — add your Supabase keys in config.js.</div>';return;}
+  list.innerHTML='<div class="lb-empty">Loading…</div>';
+  const cat=CATEGORIES[lboCatIdx];
+  try{
+    const rows=await Leaderboard.top(cat.id);
+    if(!rows.length){list.innerHTML='<div class="lb-empty">No scores yet — be the first!</div>';return;}
+    list.innerHTML=rows.map((r,i)=>renderLbRow(r,i,null)).join('');
+  }catch(e){
+    list.innerHTML='<div class="lb-empty">Could not load leaderboard.</div>';
+  }
+}
+document.getElementById('lb-btn').addEventListener('click',openLeaderboard);
+document.getElementById('lbo-close').addEventListener('click',closeLeaderboard);
+document.getElementById('lb-overlay').addEventListener('pointerdown',e=>{if(e.target.id==='lb-overlay')closeLeaderboard();});
 
 // ════════════════════════════════════════
 //  NAV

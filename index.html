@@ -1,100 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Block Puzzle</title>
-<meta name="description" content="Drag colored pieces onto a grid to recreate silhouettes of animals, food, vehicles, structures, and shapes.">
-<meta name="theme-color" content="#080816">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Block Puzzle">
-<script src="gsap.min.js"></script>
-<script>if(typeof gsap==='undefined')document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><\/script>');</script>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
-<script src="config.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Block Puzzle</title>
+  <meta name="description"
+    content="Drag colored pieces onto a grid to recreate silhouettes of animals, food, vehicles, structures, and shapes.">
+  <meta name="theme-color" content="#080816">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Block Puzzle">
+  <script src="gsap.min.js"></script>
+  <script>if (typeof gsap === 'undefined') document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><\/script>');</script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="config.js"></script>
 </head>
+
 <body>
-<div id="launch"><img id="launch-img" src="splash.png" alt="Block Puzzle"></div>
-<div id="app">
-<button class="sound-toggle" id="sound-toggle" title="Toggle sound"></button>
-<button class="theme-toggle" id="theme-toggle" title="Toggle theme"><span class="material-icons">dark_mode</span></button>
-<button class="help-btn" id="help-btn" title="How to play"><span class="material-icons">help_outline</span></button>
-<button class="lb-btn" id="lb-btn" title="Leaderboard"><span class="material-icons">leaderboard</span></button>
-<div id="lb-overlay">
-  <div class="lbo-card">
-    <div class="lbo-head">
-      <span class="lbo-title">Leaderboard</span>
-      <button class="lbo-close" id="lbo-close"><span class="material-icons">close</span></button>
-    </div>
-    <div class="lbo-tabs" id="lbo-tabs"></div>
-    <div id="lbo-list"></div>
-  </div>
-</div>
-<div id="splash">
-  <div class="splash-card">
-    <div class="splash-logo">PUZZLE</div>
-    <div class="splash-title">BLOCK PUZZLE</div>
-    <div class="splash-sub">Fill each shape with colored blocks — like a tangram.</div>
-    <div class="splash-steps">
-      <div class="splash-step"><span class="material-icons">category</span><div class="st-txt">Pick a <b>category</b> and level, or tap <b>Quick Play</b>.</div></div>
-      <div class="splash-step"><span class="material-icons">touch_app</span><div class="st-txt"><b>Drag</b> pieces from the tray onto the board.</div></div>
-      <div class="splash-step"><span class="material-icons">check_circle</span><div class="st-txt"><b>Green</b> means it fits — <span>red means it doesn't.</span></div></div>
-      <div class="splash-step"><span class="material-icons">grid_view</span><div class="st-txt">Cover <b>every cell</b> of the shape to win.</div></div>
-      <div class="splash-step"><span class="material-icons">lightbulb</span><div class="st-txt">Stuck? Tap <b>Hint</b> to reveal a piece's spot.</div></div>
-      <div class="splash-step"><span class="material-icons">leaderboard</span><div class="st-txt"><b>Fewer moves</b> = a higher leaderboard rank.</div></div>
-    </div>
-    <button class="splash-play" id="splash-play">Let's Play</button>
-  </div>
-</div>
-<div class="bg-orb" style="width:300px;height:300px;background:#6c63ff;top:-50px;left:-80px"></div>
-<div class="bg-orb" style="width:250px;height:250px;background:#ff3d7f;bottom:10%;right:-60px"></div>
-<div id="menu"></div>
-<div id="game">
-  <div class="game-main">
-    <div class="game-header">
-      <button class="hdr-btn" id="btn-back">← Back</button>
-      <div class="game-info" id="game-info"></div>
-      <button class="hdr-btn" id="btn-reset">↺</button>
-    </div>
-    <div class="level-badge" id="level-badge"></div>
-    <div class="progress-row">
-      <span class="move-count" id="move-count">0 moves</span>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-      <button class="hint-btn" id="hint-btn"><span style="font-size:11px;letter-spacing:.5px">HINT</span><span id="hint-count">3</span></button>
-    </div>
-    <div id="board-wrap"></div>
-    <div id="score-panel">
-      <div class="score-result" id="score-result"></div>
-      <div class="score-form" id="score-form">
-        <input class="score-input" id="score-name" maxlength="24" placeholder="Your name" autocomplete="off">
-        <input class="score-input" id="score-msg" maxlength="80" placeholder="Message (optional)" autocomplete="off">
-        <button class="score-submit" id="score-submit">Submit score</button>
+  <div id="launch"><img id="launch-img" src="splash.png" alt="Block Puzzle"></div>
+  <div id="app">
+    <button class="sound-toggle" id="sound-toggle" title="Toggle sound"></button>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle theme"><span
+        class="material-icons">dark_mode</span></button>
+    <button class="help-btn" id="help-btn" title="How to play"><span class="material-icons">help_outline</span></button>
+    <button class="lb-btn" id="lb-btn" title="Leaderboard"><span class="material-icons">leaderboard</span></button>
+    <div id="lb-overlay">
+      <div class="lbo-card">
+        <div class="lbo-head">
+          <span class="lbo-title">Leaderboard</span>
+          <button class="lbo-close" id="lbo-close"><span class="material-icons">close</span></button>
+        </div>
+        <div class="lbo-tabs" id="lbo-tabs"></div>
+        <div id="lbo-list"></div>
       </div>
-      <div class="lb-title" id="lb-title">Leaderboard</div>
-      <div class="lb-list" id="lb-list"></div>
     </div>
-    <div id="win-bar">
-      <button class="win-btn primary" id="win-next">NEXT</button>
-      <button class="win-btn" id="win-retry">REPLAY</button>
-      <button class="win-btn" id="win-menu">MENU</button>
+    <div id="splash">
+      <div class="splash-card">
+        <div class="splash-logo">PUZZLE</div>
+        <div class="splash-title">BLOCK PUZZLE</div>
+        <div class="splash-sub">Fill each shape with colored blocks — like a tangram.</div>
+        <div class="splash-steps">
+          <div class="splash-step"><span class="material-icons">category</span>
+            <div class="st-txt">Pick a <b>category</b> and level, or tap <b>Quick Play</b>.</div>
+          </div>
+          <div class="splash-step"><span class="material-icons">touch_app</span>
+            <div class="st-txt"><b>Drag</b> pieces from the tray onto the board.</div>
+          </div>
+          <div class="splash-step"><span class="material-icons">check_circle</span>
+            <div class="st-txt"><b>Green</b> means it fits — <span>red means it doesn't.</span></div>
+          </div>
+          <div class="splash-step"><span class="material-icons">grid_view</span>
+            <div class="st-txt">Cover <b>every cell</b> of the shape to win.</div>
+          </div>
+          <div class="splash-step"><span class="material-icons">lightbulb</span>
+            <div class="st-txt">Stuck? Tap <b>Hint</b> to reveal a piece's spot.</div>
+          </div>
+          <div class="splash-step"><span class="material-icons">leaderboard</span>
+            <div class="st-txt"><b>Fewer moves</b> = a higher leaderboard rank.</div>
+          </div>
+        </div>
+        <button class="splash-play" id="splash-play">Let's Play</button>
+      </div>
     </div>
-    <div id="next-preview" class="next-preview"></div>
-    <div id="tray">
-      <div class="tray-header"><span class="tray-label">Pieces</span><span class="tray-label" id="tray-count"></span></div>
-      <div id="tray-pieces"></div>
+    <div class="bg-orb" style="width:300px;height:300px;background:#6c63ff;top:-50px;left:-80px"></div>
+    <div class="bg-orb" style="width:250px;height:250px;background:#ff3d7f;bottom:10%;right:-60px"></div>
+    <div id="menu"></div>
+    <div id="game">
+      <div class="game-main">
+        <div class="game-header">
+          <button class="hdr-btn" id="btn-back">← Back</button>
+          <div class="game-info" id="game-info"></div>
+          <button class="hdr-btn" id="btn-reset">↺</button>
+        </div>
+        <div class="level-badge" id="level-badge"></div>
+        <div class="progress-row">
+          <span class="move-count" id="move-count">0 moves</span>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <button class="hint-btn" id="hint-btn"><span style="font-size:11px;letter-spacing:.5px">HINT</span><span
+              id="hint-count">3</span></button>
+        </div>
+        <div id="board-wrap"></div>
+        <div id="score-panel">
+          <div class="score-result" id="score-result"></div>
+          <div class="score-form" id="score-form">
+            <input class="score-input" id="score-name" maxlength="24" placeholder="Your name" autocomplete="off">
+            <input class="score-input" id="score-msg" maxlength="80" placeholder="Message (optional)"
+              autocomplete="off">
+            <button class="score-submit" id="score-submit">Submit score</button>
+          </div>
+          <div class="lb-title" id="lb-title">Leaderboard</div>
+          <div class="lb-list" id="lb-list"></div>
+        </div>
+        <div id="win-bar">
+          <button class="win-btn primary" id="win-next">NEXT</button>
+          <button class="win-btn" id="win-retry">REPLAY</button>
+          <button class="win-btn" id="win-menu">MENU</button>
+        </div>
+        <div id="next-preview" class="next-preview"></div>
+        <div id="tray">
+          <div class="tray-header"><span class="tray-label">Pieces</span><span class="tray-label"
+              id="tray-count"></span></div>
+          <div id="tray-pieces"></div>
+        </div>
+      </div>
     </div>
+    <div id="drag-ghost"></div>
   </div>
-</div>
-<div id="drag-ghost"></div>
-</div>
-<script src="js/graphics.js"></script>
-<script src="js/game.js"></script>
+  <script src="js/graphics.js"></script>
+  <script src="js/game.js"></script>
 </body>
+
 </html>

@@ -725,17 +725,20 @@ document.getElementById('help-btn').addEventListener('click',showSplash);
 
 setTheme(loadStored(LS_THEME,'dark')!=='light');
 buildMenu();
-if(!loadStored(LS_INTRO,false))showSplash();
 
-// Launch splash — branded image shown briefly on open; tap to skip.
-// Gracefully skipped if splash.png is missing, so it's safe to ship without the file.
+// Flow on open:  splash.png  ➜  how-to-play (first visit only)  ➜  menu.
+// The launch image shows first; only after it fades do the instructions appear.
+// Gracefully skips the image if splash.png is missing.
 (function(){
+  const firstVisit=!loadStored(LS_INTRO,false);
+  let done=false;
+  const reveal=()=>{if(done)return;done=true;if(firstVisit)showSplash();};
   const l=document.getElementById('launch'),img=l&&document.getElementById('launch-img');
-  if(!l||!img)return;
+  if(!l||!img){reveal();return;}
   const kill=()=>{if(l.parentNode)l.remove();};
-  const fade=()=>{l.classList.add('hide');setTimeout(kill,550);};
-  if(img.complete&&img.naturalWidth===0)return kill();   // already failed to load
-  img.addEventListener('error',kill);                    // no splash.png → skip instantly
+  const fade=()=>{l.classList.add('hide');setTimeout(kill,550);reveal();};
+  if(img.complete&&img.naturalWidth===0){kill();reveal();return;} // image already failed
+  img.addEventListener('error',()=>{kill();reveal();});           // no splash.png → straight to instructions
   let t=setTimeout(fade,1600);
-  l.addEventListener('pointerdown',()=>{clearTimeout(t);Sound.init();fade();});
+  l.addEventListener('pointerdown',()=>{clearTimeout(t);Sound.init();fade();}); // tap to skip
 })();

@@ -16,6 +16,7 @@
 <script src="gsap.min.js"></script>
 <script>if(typeof gsap==='undefined')document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><\/script>');</script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#080816;--bg2:#0e0e24;--text:#e8eaf6;--sub:#4a4d6a;--accent:#6c63ff;--green:#00c853;--pink:#ff3d7f;--gold:#ffd54f;--cell:32px;--gap:2px;--step:34px;--card:rgba(255,255,255,.02);--card-border:rgba(255,255,255,.04);--cell-bg:rgba(255,255,255,.025);--cell-border:rgba(255,255,255,.04);--shine:rgba(255,255,255,.2);--tray:rgba(255,255,255,.015);--tray-border:rgba(255,255,255,.04);--board-bg:rgba(255,255,255,.012);--board-border:rgba(255,255,255,.04);--board-shadow:0 16px 48px rgba(0,0,0,.3);--orb-opacity:.06;--qp-bg:linear-gradient(135deg,rgba(108,99,255,.08),rgba(255,61,127,.08));--qp-border:rgba(108,99,255,.2);--btn-bg:rgba(255,255,255,.04);--btn-border:rgba(255,255,255,.07);--btn-hover:rgba(255,255,255,.08);--badge-bg:rgba(255,255,255,.04);--overlay-bg:rgba(0,230,118,.05);--overlay-border:rgba(0,230,118,.15);--win-btn-sec-bg:rgba(255,255,255,.05);--win-btn-sec-border:rgba(255,255,255,.08)}
@@ -34,10 +35,10 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .carousel-row{display:flex;align-items:center;gap:18px;width:100%;justify-content:center;margin-bottom:18px}
 .carousel-arrow{width:54px;height:54px;border-radius:15px;border:1px solid var(--btn-border);background:var(--btn-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-family:'Outfit',sans-serif}
 .carousel-arrow:hover{background:var(--btn-hover);border-color:var(--accent)}
-.carousel-arrow svg{width:22px;height:22px;stroke:var(--text);stroke-width:2.5;fill:none}
+.carousel-arrow .material-icons{font-size:28px;color:var(--text)}
 .carousel-preview{width:210px;height:210px;border-radius:22px;border:1px solid var(--card-border);background:var(--card);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;padding:16px}
 .carousel-icon{display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-.carousel-icon svg{width:30px;height:30px}
+.carousel-icon .material-icons{font-size:36px}
 .carousel-shape{display:flex;align-items:center;justify-content:center}
 .carousel-progress{font-size:32px;font-weight:900;letter-spacing:-1px;margin-top:14px}
 .carousel-progress-sub{font-size:11px;color:var(--sub);font-weight:600}
@@ -96,26 +97,26 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .tray-piece.hinted{border-width:2px}
 
 #drag-ghost{position:fixed;pointer-events:none;z-index:1000;opacity:0;display:none}
-#win-bar{display:none;margin-top:12px;align-items:center;justify-content:center;gap:10px}
-.win-icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--overlay-border);background:var(--overlay-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.win-icon-btn:hover{background:rgba(0,200,100,.12)}
-.win-icon-btn svg{width:20px;height:20px;stroke:var(--green);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#win-bar{display:none;margin-top:18px;align-items:stretch;justify-content:center;gap:10px;width:100%;max-width:380px}
+.win-btn{flex:1;padding:17px 8px;border-radius:14px;border:1px solid var(--overlay-border);background:var(--overlay-bg);color:var(--green);cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;letter-spacing:1px;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.win-btn:hover{background:rgba(0,200,100,.12);transform:translateY(-2px)}
+.win-btn.primary{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 8px 24px rgba(0,200,100,.32)}
+.win-btn.primary:hover{background:#00d65a}
 .particle{position:fixed;pointer-events:none;z-index:998;border-radius:50%}
 .sound-toggle,.theme-toggle{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:100;width:42px;height:42px;border-radius:12px;border:1px solid var(--card-border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'Outfit',sans-serif}
 .theme-toggle{right:calc(env(safe-area-inset-right,0px) + 12px)}
 .sound-toggle{right:calc(env(safe-area-inset-right,0px) + 62px)}
 .sound-toggle:hover,.theme-toggle:hover{background:var(--cell-bg);border-color:var(--accent)}
-.theme-toggle .t-icon{width:18px;height:18px;border-radius:50%;transition:all .3s}
-.theme-toggle .t-icon.dark{background:var(--text);box-shadow:inset -5px -2px 0 0 var(--bg)}
-.theme-toggle .t-icon.light{background:var(--gold);box-shadow:0 0 7px var(--gold)}
-.sound-toggle svg{width:21px;height:21px;stroke:var(--text);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.sound-toggle.muted svg{stroke:var(--sub);opacity:.65}
+.theme-toggle .material-icons{font-size:23px;color:var(--text)}
+.theme-toggle .material-icons.light{color:var(--gold)}
+.sound-toggle .material-icons{font-size:24px;color:var(--text)}
+.sound-toggle.muted .material-icons{color:var(--sub);opacity:.65}
 </style>
 </head>
 <body>
 <div id="app">
 <button class="sound-toggle" id="sound-toggle" title="Toggle sound"></button>
-<button class="theme-toggle" id="theme-toggle" title="Toggle theme"><div class="t-icon dark"></div></button>
+<button class="theme-toggle" id="theme-toggle" title="Toggle theme"><span class="material-icons">dark_mode</span></button>
 <div class="bg-orb" style="width:300px;height:300px;background:#6c63ff;top:-50px;left:-80px"></div>
 <div class="bg-orb" style="width:250px;height:250px;background:#ff3d7f;bottom:10%;right:-60px"></div>
 <div id="menu"></div>
@@ -133,15 +134,9 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
     </div>
     <div id="board-wrap"></div>
     <div id="win-bar">
-      <button class="win-icon-btn" id="win-next" title="Next">
-        <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-      </button>
-      <button class="win-icon-btn" id="win-retry" title="Retry">
-        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      </button>
-      <button class="win-icon-btn" id="win-menu" title="Menu">
-        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
+      <button class="win-btn primary" id="win-next">NEXT</button>
+      <button class="win-btn" id="win-retry">REPLAY</button>
+      <button class="win-btn" id="win-menu">MENU</button>
     </div>
     <div id="next-preview" class="next-preview"></div>
     <div id="tray">
@@ -157,11 +152,11 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 //  SHAPE DATA — 5 categories × 10 shapes
 // ════════════════════════════════════════
 const ICONS = {
-  animals: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="18" cy="8" r="2"/><path d="M8.5 14c-1.5-2-2.5-4-2-6.5C8 6 9.5 8 11 10c1.5-2 3-4 4.5-2.5.5 2.5-.5 4.5-2 6.5-1 1.5-2 3-2.5 5-.5-2-1.5-3.5-2.5-5z"/></svg>`,
-  food: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>`,
-  vehicles: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-3.5-5.4A2 2 0 0 0 12.8 3H5.2a2 2 0 0 0-1.7 1L2 8l-1 3v5c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M12 17H9m8-7H5"/></svg>`,
-  structures: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/><line x1="2" y1="18" x2="22" y2="18"/></svg>`,
-  shapes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="14" width="8" height="8" rx="1"/><path d="M6 2l4.5 8H1.5L6 2z"/><circle cx="18" cy="18" r="4"/><path d="M18 2l4 6h-8l4-6z"/></svg>`,
+  animals: `<span class="material-icons">pets</span>`,
+  food: `<span class="material-icons">restaurant</span>`,
+  vehicles: `<span class="material-icons">directions_car</span>`,
+  structures: `<span class="material-icons">account_balance</span>`,
+  shapes: `<span class="material-icons">category</span>`,
 };
 const CATEGORIES = [
   { id:'animals', name:'Animals', icon:'animals', color:'#06d6a0', shapes:[
@@ -383,13 +378,13 @@ function renderCarousel(dir){
     <div class="carousel-icon" style="color:${cat.color}">${ICONS[cat.icon]}</div>
     <div class="carousel-row">
       <button class="carousel-arrow" id="car-left">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        <span class="material-icons">chevron_left</span>
       </button>
       <div class="carousel-preview" id="car-preview" style="border-color:${cat.color}30">
         ${buildThumbSVG(nextShape,172,cat.color)}
       </div>
       <button class="carousel-arrow" id="car-right">
-        <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        <span class="material-icons">chevron_right</span>
       </button>
     </div>
     <div class="carousel-progress" style="color:${cat.color}">${prog}<span style="font-size:16px;color:var(--sub);font-weight:600"> / 10</span></div>
@@ -806,8 +801,7 @@ let isDark=true;
 function setTheme(dark){
   isDark=dark;
   document.documentElement.setAttribute('data-theme',dark?'dark':'light');
-  const icon=document.querySelector('#theme-toggle .t-icon');
-  icon.className='t-icon '+(dark?'dark':'light');
+  document.getElementById('theme-toggle').innerHTML='<span class="material-icons'+(dark?'':' light')+'">'+(dark?'dark_mode':'light_mode')+'</span>';
   saveStored(LS_THEME,dark?'dark':'light');
 }
 document.getElementById('theme-toggle').addEventListener('click',()=>{
@@ -819,9 +813,7 @@ document.getElementById('theme-toggle').addEventListener('click',()=>{
 function updateSoundBtn(){
   const b=document.getElementById('sound-toggle');
   b.classList.toggle('muted',!Sound.enabled);
-  b.innerHTML=Sound.enabled
-    ?'<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19.07 5.93a10 10 0 0 1 0 12.14"/></svg>'
-    :'<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>';
+  b.innerHTML='<span class="material-icons">'+(Sound.enabled?'volume_up':'volume_off')+'</span>';
 }
 document.getElementById('sound-toggle').addEventListener('click',()=>{
   Sound.toggle();updateSoundBtn();

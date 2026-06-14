@@ -110,6 +110,7 @@ let S={
   dragging:null,dragOff:{x:0,y:0},_hover:null,
 };
 
+const reduceMotion=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches);
 let bestScores=loadStored(LS_BEST,{}); // "catIdx-levelIdx" => best (fewest) moves so far
 let lbLimit=1;                          // leaderboard size currently shown (1 per level, 10 at category end)
 let lbShape=null;                       // shape filter for the current panel (per-level) or null (whole category)
@@ -134,9 +135,7 @@ function buildMenu(){
     <div class="quick-play">
       <div class="qp-title">Quick Play</div>
       <div class="qp-btns">
-        <button class="qp-btn" data-d="0"><div class="ql" style="color:#4cc9f0">Easy</div><div class="qi">Chill</div></button>
-        <button class="qp-btn" data-d="1"><div class="ql" style="color:#ffd54f">Medium</div><div class="qi">Think</div></button>
-        <button class="qp-btn" data-d="2"><div class="ql" style="color:#ff3d7f">Hard</div><div class="qi">Grind</div></button>
+        ${DIFF.map((d,i)=>`<button class="qp-btn" data-d="${i}"><div class="ql" style="color:${d.color}">${d.label}</div><div class="qi">${['Chill','Think','Grind'][i]}</div></button>`).join('')}
       </div>
     </div>`;
   el.querySelectorAll('.qp-btn').forEach(b=>b.addEventListener('click',()=>startQuick(+b.dataset.d)));
@@ -290,15 +289,14 @@ function transitionToGame(){
 function buildGame(){
   const cat=CATEGORIES[S.catIdx],shape=cat.shapes[S.levelIdx];
   document.getElementById('game-info').innerHTML=`<span>${shape.name}</span>`;
-  const diffLabels=['Easy','Medium','Hard'];
-  const diffColors=['#4cc9f0','#ffd54f','#ff3d7f'];
+  const d=DIFF[S.diffIdx];
   document.getElementById('level-badge').innerHTML=
     S.mode==='category'
-      ?`${cat.name} — Level ${S.levelIdx+1}/10 <span style="color:${diffColors[S.diffIdx]}">(${diffLabels[S.diffIdx]})</span>`
-      :`Quick Play — <span style="color:${diffColors[S.diffIdx]}">${diffLabels[S.diffIdx]}</span>`;
+      ?`${cat.name} — Level ${S.levelIdx+1}/10 <span style="color:${d.color}">(${d.label})</span>`
+      :`Quick Play — <span style="color:${d.color}">${d.label}</span>`;
   updateHintBtn();
   document.getElementById('hint-btn').onclick=useHint;
-  buildBoard();buildTray();updateProgress();
+  buildBoard();buildTray(true);updateProgress();
   document.getElementById('win-bar').style.display='none';
   document.getElementById('score-panel').style.display='none';
   document.getElementById('win-menu').onclick=goToMenu;
@@ -350,7 +348,7 @@ function buildBoard(){
   });
 }
 
-function buildTray(){
+function buildTray(animate){
   const c=document.getElementById('tray-pieces');c.innerHTML='';
   const up=S.pieces.map((p,i)=>({...p,idx:i})).filter((_,i)=>!S.placed[i]&&S.dragging!==i);
   updateTrayCount();
@@ -360,8 +358,10 @@ function buildTray(){
     const el=document.createElement('div');el.className='tray-piece';el.dataset.idx=p.idx;
     el.innerHTML=buildPieceSVG(p.normalized,col,TRAY_CELL);
     c.appendChild(el);
-    gsap.set(el,{scale:0,opacity:0,rotation:gsap.utils.random(-12,12)});
-    gsap.to(el,{scale:1,opacity:1,rotation:0,duration:.45,delay:.08+i*.03,ease:'elastic.out(1,.6)'});
+    if(animate){
+      gsap.set(el,{scale:0,opacity:0,rotation:gsap.utils.random(-12,12)});
+      gsap.to(el,{scale:1,opacity:1,rotation:0,duration:.45,delay:.08+i*.03,ease:'elastic.out(1,.6)'});
+    }
     el.addEventListener('pointerenter',()=>{if(S.dragging!==null)return;gsap.to(el,{scale:1.1,duration:.15});el.style.boxShadow=`0 4px 16px ${col}44`;});
     el.addEventListener('pointerleave',()=>{gsap.to(el,{scale:1,duration:.15});el.style.boxShadow='none';});
     el.addEventListener('pointerdown',e=>startDrag(p.idx,e));
@@ -389,7 +389,8 @@ function startDrag(idx,e){
   gsap.to(ghost,{opacity:.92,scale:1.05,duration:.2,ease:'back.out(2)'});
   ghost.style.filter=`drop-shadow(0 14px 30px rgba(0,0,0,.55)) drop-shadow(0 0 12px ${col}55)`;
   document.body.style.touchAction='none';document.body.style.overflow='hidden';
-  buildTray();
+  S.dragRect=document.getElementById('board-wrap').getBoundingClientRect(); // board can't move mid-drag
+  buildTray(false);
   window.addEventListener('pointermove',onMove,{passive:false});
   window.addEventListener('pointerup',onUp);
   window.addEventListener('pointercancel',onUp);
@@ -399,7 +400,7 @@ function onMove(e){
   const cx=e.clientX,cy=e.clientY;
   const ghost=document.getElementById('drag-ghost');
   const fx=cx-S.dragOff.x,fy=cy-S.dragOff.y;
-  const wrap=document.getElementById('board-wrap'),rect=wrap.getBoundingClientRect();
+  const rect=S.dragRect||document.getElementById('board-wrap').getBoundingClientRect();
   const gc=Math.round((fx-rect.left-10)/STEP),gr=Math.round((fy-rect.top-10)/STEP);
   const over=gc>=-1&&gc<=S.gridW&&gr>=-1&&gr<=S.gridH;
   if(over){
@@ -429,9 +430,9 @@ function onUp(){
     if(h)shakeBoard();
     gsap.to(ghost,{opacity:0,y:'+=30',scale:.6,duration:.25,ease:'power2.in',onComplete:()=>{ghost.style.display='none';}});
   }
-  S.dragging=null;S._hover=null;clearHover();
+  S.dragging=null;S._hover=null;clearHover();S.dragRect=null;
   document.body.style.touchAction='';document.body.style.overflow='';
-  buildTray();
+  buildTray(false);
 }
 let hoverCells=[];
 function clearHover(){hoverCells.forEach(c=>c.classList.remove('hover-good','hover-bad'));hoverCells=[];}
@@ -451,7 +452,7 @@ function placePiece(idx,bR,bC){
     gsap.fromTo(cell,{scale:1.25},{scale:1,duration:.35,delay:i*.02,ease:'elastic.out(1.2,.4)'});
     gsap.fromTo(cell,{boxShadow:`0 0 16px ${col}88`},{boxShadow:`0 0 0px ${col}00`,duration:.5,delay:i*.02});
   });
-  updateProgress();buildTray();checkWin();
+  updateProgress();buildTray(false);checkWin();
 }
 function removePiece(idx){
   const removed=[];
@@ -476,12 +477,13 @@ function useHint(){
   const piece=S.pieces[pick],col=PALETTE[piece.colorIdx%PALETTE.length];
   piece.cells.forEach(([r,c])=>{const cell=getCell(r,c);if(!cell||cell.classList.contains('filled'))return;
     cell.style.border=`2px solid ${col}88`;
+    if(reduceMotion){cell.style.background=`${col}30`;return;}
     gsap.to(cell,{background:`${col}30`,duration:.5,repeat:-1,yoyo:true,ease:'sine.inOut',overwrite:'auto'});
     gsap.fromTo(cell,{scale:.92},{scale:1.03,duration:.6,repeat:-1,yoyo:true,ease:'sine.inOut'});
   });
   const tp=document.querySelector(`.tray-piece[data-idx="${pick}"]`);
   if(tp){tp.classList.add('hinted');tp.style.borderColor=col+'88';tp.style.background=col+'15';
-    gsap.to(tp,{scale:1.08,duration:.4,repeat:-1,yoyo:true,ease:'sine.inOut'});}
+    if(!reduceMotion)gsap.to(tp,{scale:1.08,duration:.4,repeat:-1,yoyo:true,ease:'sine.inOut'});}
   if(S.hintTimer)clearTimeout(S.hintTimer);
   S.hintTimer=setTimeout(clearHint,3500);
 }
@@ -503,8 +505,7 @@ function updateProgress(){
   const tot=S.pieces.length,pl=Object.keys(S.placed).length;
   document.getElementById('move-count').textContent=S.moves+(S.moves===1?' move':' moves');
   document.getElementById('progress-fill').style.width=Math.round(pl/tot*100)+'%';
-  const dc=['#4cc9f0','#ffd54f','#ff3d7f'];
-  document.getElementById('progress-fill').style.background=S.won?'var(--green)':`linear-gradient(90deg,#4cc9f0,${dc[S.diffIdx]})`;
+  document.getElementById('progress-fill').style.background=S.won?'var(--green)':`linear-gradient(90deg,#4cc9f0,${DIFF[S.diffIdx].color})`;
   updateTrayCount();
 }
 function updateTrayCount(){document.getElementById('tray-count').textContent=Object.keys(S.placed).length+'/'+S.pieces.length+' placed';}
@@ -522,7 +523,7 @@ function celebrateWin(){
     gsap.to(cell,{scale:1.12,duration:.18,delay:i*.012,ease:'power2.out',onComplete:()=>gsap.to(cell,{scale:1,duration:.4,ease:'elastic.out(1.2,.3)'})});
     gsap.fromTo(cell,{boxShadow:`0 0 0px ${cell.style.background}`},{boxShadow:`0 0 16px ${cell.style.background}`,duration:.3,delay:i*.012,yoyo:true,repeat:1});
   });
-  spawnParticles(35);
+  if(!reduceMotion)spawnParticles(35);
   // Hide next arrow if last level or quick play
   const nextBtn=document.getElementById('win-next');
   nextBtn.style.display=(S.mode==='category'&&S.levelIdx<9)?'flex':'none';

@@ -29,22 +29,22 @@
     <div class="launch-hint">Tap to start</div>
   </div>
   <div id="app">
-    <button class="sound-toggle" id="sound-toggle" title="Toggle sound"></button>
-    <button class="theme-toggle" id="theme-toggle" title="Toggle theme"><span
+    <button class="sound-toggle" id="sound-toggle" title="Toggle sound" aria-label="Toggle sound"></button>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><span
         class="material-icons">dark_mode</span></button>
-    <button class="help-btn" id="help-btn" title="How to play"><span class="material-icons">help_outline</span></button>
-    <button class="lb-btn" id="lb-btn" title="Leaderboard"><span class="material-icons">leaderboard</span></button>
-    <div id="lb-overlay">
+    <button class="help-btn" id="help-btn" title="How to play" aria-label="How to play"><span class="material-icons">help_outline</span></button>
+    <button class="lb-btn" id="lb-btn" title="Leaderboard" aria-label="Leaderboard"><span class="material-icons">leaderboard</span></button>
+    <div id="lb-overlay" role="dialog" aria-modal="true" aria-label="Leaderboard">
       <div class="lbo-card">
         <div class="lbo-head">
           <span class="lbo-title">Leaderboard</span>
-          <button class="lbo-close" id="lbo-close"><span class="material-icons">close</span></button>
+          <button class="lbo-close" id="lbo-close" aria-label="Close leaderboard"><span class="material-icons">close</span></button>
         </div>
         <div class="lbo-tabs" id="lbo-tabs"></div>
         <div id="lbo-list"></div>
       </div>
     </div>
-    <div id="splash">
+    <div id="splash" role="dialog" aria-modal="true" aria-label="How to play">
       <div class="splash-card">
         <div class="splash-logo">PUZZLE</div>
         <div class="splash-title">BLOCK PUZZLE</div>
@@ -78,9 +78,9 @@
     <div id="game">
       <div class="game-main">
         <div class="game-header">
-          <button class="hdr-btn" id="btn-back">← Back</button>
+          <button class="hdr-btn" id="btn-back" aria-label="Back to menu">← Back</button>
           <div class="game-info" id="game-info"></div>
-          <button class="hdr-btn" id="btn-reset">↺</button>
+          <button class="hdr-btn" id="btn-reset" aria-label="Restart level">↺</button>
         </div>
         <div class="level-badge" id="level-badge"></div>
         <div class="progress-row">
@@ -95,9 +95,9 @@
         <div id="score-panel">
           <div class="score-result" id="score-result"></div>
           <div class="score-form" id="score-form">
-            <input class="score-input" id="score-name" maxlength="24" placeholder="Your name" autocomplete="off">
+            <input class="score-input" id="score-name" maxlength="24" placeholder="Your name" autocomplete="off" aria-label="Your name">
             <input class="score-input" id="score-msg" maxlength="80" placeholder="Message (optional)"
-              autocomplete="off">
+              autocomplete="off" aria-label="Message (optional)">
             <button class="score-submit" id="score-submit">Submit score</button>
           </div>
           <div class="lb-title" id="lb-title">Leaderboard</div>

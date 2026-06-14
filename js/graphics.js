@@ -80,6 +80,9 @@ const CATEGORIES = [
 const PALETTE=["#f72585","#7209b7","#3a86ff","#4cc9f0","#06d6a0","#f77f00","#e63946","#ffbe0b","#8338ec","#00b4d8","#ef476f","#118ab2","#ffd166","#fb5607","#9b5de5"];
 const CELL=32,GAP=2,STEP=34,TRAY_CELL=22;
 
+// Difficulty labels + accent colors (single source of truth)
+const DIFF=[{label:'Easy',color:'#4cc9f0'},{label:'Medium',color:'#ffd54f'},{label:'Hard',color:'#ff3d7f'}];
+
 // Shape string-grid → {cells, gridW, gridH}
 function parseShape(shape){
   const cells=[],h=shape.length,w=Math.max(...shape.map(r=>r.length));

@@ -1,6 +1,6 @@
 // Block Puzzle — service worker (offline app shell).
 // Bump CACHE whenever shell files change so clients pick up the new version.
-const CACHE = 'bp-v1';
+const CACHE = 'bp-v2';
 const SHELL = [
   './', 'index.html', 'css/styles.css',
   'js/graphics.js', 'js/game.js', 'config.js',

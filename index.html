@@ -44,6 +44,21 @@
         <div id="lbo-list"></div>
       </div>
     </div>
+    <div id="settings-overlay" role="dialog" aria-modal="true" aria-label="Settings">
+      <div class="set-card">
+        <div class="set-head">
+          <span class="set-title">Settings</span>
+          <button class="lbo-close" id="set-close" aria-label="Close settings"><span class="material-icons">close</span></button>
+        </div>
+        <button class="set-row" id="set-sound"><span class="set-l"><span class="material-icons">volume_up</span>Sound</span><span class="set-val" id="set-sound-val">On</span></button>
+        <button class="set-row" id="set-theme"><span class="set-l"><span class="material-icons">dark_mode</span>Theme</span><span class="set-val" id="set-theme-val">Dark</span></button>
+        <button class="set-row" id="set-hard"><span class="set-l"><span class="material-icons">rotate_right</span>Hard mode (rotate)</span><span class="set-val off" id="set-hard-val">Off</span></button>
+        <div class="set-div"></div>
+        <button class="set-row" id="set-help"><span class="set-l"><span class="material-icons">help_outline</span>How to play</span><span class="material-icons set-chev">chevron_right</span></button>
+        <button class="set-row" id="set-lb"><span class="set-l"><span class="material-icons">leaderboard</span>Leaderboard</span><span class="material-icons set-chev">chevron_right</span></button>
+        <button class="set-row" id="set-restart"><span class="set-l"><span class="material-icons">restart_alt</span>Restart level</span><span class="material-icons set-chev">chevron_right</span></button>
+      </div>
+    </div>
     <div id="splash" role="dialog" aria-modal="true" aria-label="How to play">
       <div class="splash-card">
         <div class="splash-logo">PUZZLE</div>
@@ -80,7 +95,10 @@
         <div class="game-header">
           <button class="hdr-btn" id="btn-back" aria-label="Back to menu">← Back</button>
           <div class="game-info" id="game-info"></div>
-          <button class="hdr-btn" id="btn-reset" aria-label="Restart level">↺</button>
+          <div class="hdr-right">
+            <button class="hdr-btn hdr-icon" id="btn-settings" aria-label="Settings"><span class="material-icons">settings</span></button>
+            <button class="hdr-btn hdr-icon" id="btn-reset" aria-label="Restart level">↺</button>
+          </div>
         </div>
         <div class="level-badge" id="level-badge"></div>
         <div class="progress-row">

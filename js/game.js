@@ -29,7 +29,7 @@ function levelHints(diff){return diff+1}
 // ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
-const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound',LS_NAME='bp-name',LS_BEST='bp-best';
+const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound',LS_NAME='bp-name',LS_BEST='bp-best',LS_HARD='bp-hard';
 function loadStored(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
 function saveStored(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -111,6 +111,7 @@ let S={
 };
 
 const reduceMotion=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches);
+let hardMode=loadStored(LS_HARD,false); // rotation challenge (toggled in Settings)
 let bestScores=loadStored(LS_BEST,{}); // "catIdx-levelIdx" => best (fewest) moves so far
 let lbLimit=1;                          // leaderboard size currently shown (1 per level, 10 at category end)
 let lbShape=null;                       // shape filter for the current panel (per-level) or null (whole category)
@@ -702,6 +703,36 @@ async function loadOverlayBoard(){
 document.getElementById('lb-btn').addEventListener('click',openLeaderboard);
 document.getElementById('lbo-close').addEventListener('click',closeLeaderboard);
 document.getElementById('lb-overlay').addEventListener('pointerdown',e=>{if(e.target.id==='lb-overlay')closeLeaderboard();});
+
+// ════════════════════════════════════════
+//  SETTINGS / PAUSE OVERLAY (in-game; corner buttons are hidden while playing)
+// ════════════════════════════════════════
+function updateSettingsUI(){
+  const sv=document.getElementById('set-sound-val');sv.textContent=Sound.enabled?'On':'Off';sv.classList.toggle('off',!Sound.enabled);
+  const tv=document.getElementById('set-theme-val');tv.textContent=isDark?'Dark':'Light';
+  const hv=document.getElementById('set-hard-val');hv.textContent=hardMode?'On':'Off';hv.classList.toggle('off',!hardMode);
+}
+function openSettings(){
+  updateSettingsUI();
+  document.getElementById('settings-overlay').classList.add('show');
+  gsap.fromTo('.set-card',{opacity:0,scale:.95,y:10},{opacity:1,scale:1,y:0,duration:.3,ease:'power3.out'});
+}
+function closeSettings(){
+  gsap.to('.set-card',{opacity:0,scale:.97,duration:.2,ease:'power2.in',onComplete:()=>document.getElementById('settings-overlay').classList.remove('show')});
+}
+function setHardMode(on){hardMode=on;saveStored(LS_HARD,hardMode);}
+document.getElementById('btn-settings').addEventListener('click',openSettings);
+document.getElementById('set-close').addEventListener('click',closeSettings);
+document.getElementById('settings-overlay').addEventListener('pointerdown',e=>{if(e.target.id==='settings-overlay')closeSettings();});
+document.getElementById('set-sound').addEventListener('click',()=>{Sound.toggle();updateSoundBtn();updateSettingsUI();});
+document.getElementById('set-theme').addEventListener('click',()=>{setTheme(!isDark);updateSettingsUI();});
+document.getElementById('set-hard').addEventListener('click',()=>{setHardMode(!hardMode);updateSettingsUI();applyHardMode();});
+document.getElementById('set-help').addEventListener('click',()=>{closeSettings();showSplash();});
+document.getElementById('set-lb').addEventListener('click',()=>{closeSettings();openLeaderboard();});
+document.getElementById('set-restart').addEventListener('click',()=>{closeSettings();resetLevel();});
+// Re-init the current level so a Hard-mode change takes effect immediately (same seed → same pieces,
+// re-assigning rotations per hardMode in initLevel — Phase 3).
+function applyHardMode(){ if(document.body.classList.contains('playing')){clearHint();initLevel(S.catIdx,S.levelIdx,S.diffIdx);buildGame();} }
 
 // ════════════════════════════════════════
 //  NAV

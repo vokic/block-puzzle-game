@@ -45,6 +45,9 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .game-header{display:flex;align-items:center;width:100%;justify-content:space-between;padding:4px 0 6px}
 .hdr-btn{background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:9px;padding:9px 14px;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
 .hdr-btn:hover{background:var(--btn-hover);color:var(--text)}
+.hdr-right{display:flex;gap:8px}
+.hdr-icon{display:flex;align-items:center;justify-content:center;padding:8px 10px}
+.hdr-icon .material-icons{font-size:18px;display:block}
 .game-info{font-size:19px;font-weight:700}
 
 .game-main{display:flex;flex-direction:column;align-items:center;width:100%;max-width:400px}
@@ -163,6 +166,21 @@ body.playing .sound-toggle,body.playing .theme-toggle,body.playing .help-btn,bod
 .lbo-tab:hover{background:var(--btn-hover)}
 .lbo-tab.active{color:#fff;border-color:transparent}
 #lbo-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:5px}
+
+/* Settings / pause overlay */
+#settings-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.6);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px}
+#settings-overlay.show{display:flex}
+.set-card{width:100%;max-width:380px;display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--card-border);border-radius:20px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.set-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.set-title{font-size:21px;font-weight:900;letter-spacing:-.5px}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:13px 14px;margin-top:8px;border-radius:13px;border:1px solid var(--btn-border);background:var(--btn-bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.set-row:hover{background:var(--btn-hover)}
+.set-l{display:flex;align-items:center;gap:11px}
+.set-l .material-icons{font-size:21px;color:var(--accent)}
+.set-val{font-size:13px;font-weight:800;color:var(--accent);background:rgba(108,99,255,.14);padding:3px 12px;border-radius:8px}
+.set-val.off{color:var(--sub);background:var(--badge-bg)}
+.set-chev{color:var(--sub);font-size:20px}
+.set-div{height:1px;background:var(--card-border);margin:12px 2px 4px}
 
 /* Respect reduced-motion: kill the looping launch hint + decorative transitions */
 @media (prefers-reduced-motion:reduce){

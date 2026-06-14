@@ -61,7 +61,7 @@ const Leaderboard={
 //  SOUND — Web Audio synth (no files, offline)
 // ════════════════════════════════════════
 const Sound=(()=>{
-  let ctx=null,enabled=loadStored(LS_SOUND,true);
+  let ctx=null,enabled=loadStored(LS_SOUND,true),unlocked=false;
   function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(ctx.state==='suspended')ctx.resume();return ctx;}
   function tone(freq,dur,type,vol,when){
     const c=ac();if(!c)return;const t=c.currentTime+(when||0);
@@ -75,6 +75,7 @@ const Sound=(()=>{
   return{
     get enabled(){return enabled},
     init(){ac();},
+    unlock(){const c=ac();if(!c)return;if(!unlocked){try{const o=c.createOscillator(),g=c.createGain();g.gain.value=.00001;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.03);}catch(e){}unlocked=true;}},
     toggle(){enabled=!enabled;saveStored(LS_SOUND,enabled);if(enabled){ac();this.place();}return enabled;},
     pick(){if(enabled)tone(440,.07,'triangle',.10);},
     place(){if(!enabled)return;tone(523.25,.09,'triangle',.16);tone(784,.11,'sine',.10,.04);},
@@ -83,7 +84,9 @@ const Sound=(()=>{
     win(){if(!enabled)return;[523.25,659.25,784,1046.5].forEach((f,i)=>tone(f,.45,'triangle',.15,i*.11));tone(1568,.5,'sine',.08,.46);}
   };
 })();
-window.addEventListener('pointerdown',()=>Sound.init(),{once:true});
+// Unlock/resume audio on user gestures (mobile autoplay policy needs this; not {once} so it
+// re-resumes if the OS suspends the context after backgrounding).
+['pointerdown','touchend','click'].forEach(ev=>window.addEventListener(ev,()=>Sound.unlock(),{passive:true}));
 
 // ════════════════════════════════════════
 //  NATIVE-FEEL GUARDS — block zoom & pull-to-refresh
@@ -177,7 +180,8 @@ function renderCarousel(dir){
     const locked=li>next;
     const dot=document.createElement('div');
     dot.className='carousel-dot'+(done?' done':'')+(cur?' current':'')+(locked?' locked':'');
-    dot.textContent=done?'—':(li+1);
+    if(done)dot.innerHTML='<span class="material-icons">check</span>';
+    else dot.textContent=li+1;
     if(!locked)dot.addEventListener('click',()=>startCategory(menuCatIdx,li));
     lc.appendChild(dot);
   });
@@ -550,7 +554,7 @@ function spawnParticles(n){
 //  SCORE PANEL & LEADERBOARD
 // ════════════════════════════════════════
 // Flow:
-//  • after each level  → show Top 5 ONLY if it's a personal best AND it makes the top 5
+//  • after each level  → show Top 1 (the record) ONLY on a new personal best or a new record
 //  • after last level of a category (category complete) → always show Top 10
 async function showScorePanel(){
   const panel=document.getElementById('score-panel');
@@ -564,7 +568,7 @@ async function showScorePanel(){
   if(isBest){bestScores[bk]=S.moves;saveStored(LS_BEST,bestScores);}
 
   const categoryEnd=S.mode==='category'&&catProgress(S.catIdx)===10;
-  lbLimit=categoryEnd?10:5;
+  lbLimit=categoryEnd?10:1;
 
   if(!Leaderboard.enabled){
     if(!categoryEnd)return; // per-level shows nothing without a backend
@@ -585,12 +589,12 @@ async function showScorePanel(){
     revealScorePanel();return;
   }
 
-  // Per-level: only if a personal best AND it lands in the top 5
-  if(!isBest||rows===null)return;
-  const inTop5=rows.length<5||S.moves<rows[4].moves;
-  if(!inTop5)return;
-  setScorePanel(cat.name+' — Top 5',
-    `New best! <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`,true);
+  // Per-level: show the single top score, only on a new personal best or a new record (#1)
+  if(rows===null)return;
+  const isRecord=rows.length===0||S.moves<rows[0].moves;
+  if(!isBest&&!isRecord)return;
+  setScorePanel(cat.name+(isRecord?' — New record':' — Top score'),
+    `${isRecord?'New record!':'New best!'} <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`,true);
   renderLbList(document.getElementById('lb-list'),rows,null);
   revealScorePanel();
 }

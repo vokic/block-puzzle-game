@@ -901,3 +901,6 @@ buildMenu();
   img.addEventListener('error',()=>{kill();reveal();});           // no splash.png → straight to instructions
   l.addEventListener('pointerdown',()=>{Sound.init();fade();});   // stays until the screen is tapped
 })();
+
+// Service worker — offline app shell (no-op on file:// or unsupported browsers)
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}

@@ -68,6 +68,8 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .hint-btn:hover:not(:disabled){background:rgba(255,212,84,.12)}
 .hint-btn:disabled{opacity:.35;cursor:default;border-color:var(--card-border);color:var(--sub)}
 .level-badge{font-size:11px;font-weight:800;color:var(--sub);background:var(--badge-bg);padding:4px 10px;border-radius:7px;margin-bottom:8px;letter-spacing:.5px}
+.badge-best{color:var(--green);font-weight:800;margin-left:5px}
+.rank-tag{color:var(--accent);font-weight:800;background:rgba(108,99,255,.14);padding:2px 9px;border-radius:8px;margin-left:6px}
 
 #board-wrap{position:relative;border-radius:14px;background:var(--board-bg);border:2px solid var(--board-border);box-shadow:var(--board-shadow);flex-shrink:0;padding:10px}
 .cell{position:absolute;border-radius:5px;width:var(--cell);height:var(--cell);background:var(--cell-bg);border:1px solid var(--card-border);overflow:hidden;touch-action:none}

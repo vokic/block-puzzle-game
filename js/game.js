@@ -56,6 +56,16 @@ const Leaderboard={
       body:JSON.stringify(entry)
     });
     if(!r.ok)throw new Error('submit '+r.status+' '+await r.text());
+  },
+  // Rank = (# entries with fewer moves for this shape) + 1. Uses PostgREST exact count header.
+  async rank(category,shape,moves){
+    let url=`${SB_URL}/rest/v1/leaderboard?category=eq.${encodeURIComponent(category)}`;
+    if(shape)url+=`&shape=eq.${encodeURIComponent(shape)}`;
+    url+=`&moves=lt.${moves}&select=id`;
+    const r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,Prefer:'count=exact',Range:'0-0'}});
+    const cr=r.headers.get('content-range')||'';
+    const total=parseInt((cr.split('/')[1]||''),10);
+    return Number.isFinite(total)?total+1:null;
   }
 };
 
@@ -202,6 +212,9 @@ function renderCarousel(dir){
     const locked=li>next;
     const dot=document.createElement('div');
     dot.className='carousel-dot'+(done?' done':'')+(cur?' current':'')+(locked?' locked':'');
+    const best=bestScores[menuCatIdx+'-'+li];
+    const lbl='Level '+(li+1)+(best!=null?` — best ${best} moves`:'')+(locked?' (locked)':'');
+    dot.title=lbl;dot.setAttribute('aria-label',lbl);
     if(done)dot.innerHTML='<span class="material-icons">check</span>';
     else dot.textContent=li+1;
     if(!locked)dot.addEventListener('click',()=>startCategory(menuCatIdx,li));
@@ -326,10 +339,12 @@ function buildGame(){
   const cat=CATEGORIES[S.catIdx],shape=cat.shapes[S.levelIdx];
   document.getElementById('game-info').innerHTML=`<span>${shape.name}</span>`;
   const d=DIFF[S.diffIdx];
+  const best=bestScores[S.catIdx+'-'+S.levelIdx];
+  const bestTag=best!=null?` <span class="badge-best">Best ${best}</span>`:'';
   document.getElementById('level-badge').innerHTML=
-    S.mode==='category'
+    (S.mode==='category'
       ?`${cat.name} — Level ${S.levelIdx+1}/10 <span style="color:${d.color}">(${d.label})</span>`
-      :`Quick Play — <span style="color:${d.color}">${d.label}</span>`;
+      :`Quick Play — <span style="color:${d.color}">${d.label}</span>`)+bestTag;
   updateHintBtn();
   document.getElementById('hint-btn').onclick=useHint;
   buildBoard();buildTray(true);updateProgress();
@@ -691,6 +706,9 @@ async function submitScore(){
     document.getElementById('score-form').style.display='none';
     const rows=await Leaderboard.top(cat.id,lbLimit,lbShape);
     renderLbList(document.getElementById('lb-list'),rows,{name,moves:S.moves,message});
+    // Show the player's rank for this shape
+    try{const rk=await Leaderboard.rank(cat.id,shape.name,S.moves);
+      if(rk)document.getElementById('score-result').innerHTML+=` <span class="rank-tag">rank #${rk}</span>`;}catch(e){}
   }catch(e){
     btn.disabled=false;btn.textContent='Retry';
     document.getElementById('lb-list').innerHTML='<div class="lb-empty">Could not submit — check your connection.</div>';

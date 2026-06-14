@@ -29,7 +29,7 @@ function levelHints(diff){return diff+1}
 // ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
-const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound',LS_NAME='bp-name';
+const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound',LS_NAME='bp-name',LS_BEST='bp-best';
 function loadStored(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
 function saveStored(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -41,8 +41,8 @@ const SB_URL=(window.SUPABASE_URL||'').replace(/\/+$/,'');
 const SB_KEY=window.SUPABASE_ANON_KEY||'';
 const Leaderboard={
   enabled:!!(SB_URL&&SB_KEY),
-  async top(category){
-    const url=`${SB_URL}/rest/v1/leaderboard?category=eq.${encodeURIComponent(category)}&select=name,message,moves,shape,created_at&order=moves.asc,created_at.asc&limit=10`;
+  async top(category,limit){
+    const url=`${SB_URL}/rest/v1/leaderboard?category=eq.${encodeURIComponent(category)}&select=name,message,moves,shape,created_at&order=moves.asc,created_at.asc&limit=${limit||10}`;
     const r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
     if(!r.ok)throw new Error('fetch '+r.status);
     return r.json();
@@ -105,6 +105,8 @@ let S={
   dragging:null,dragOff:{x:0,y:0},_hover:null,
 };
 
+let bestScores=loadStored(LS_BEST,{}); // "catIdx-levelIdx" => best (fewest) moves so far
+let lbLimit=5;                          // leaderboard size currently shown (5 per level, 10 at category end)
 function getCompleted(ci,li){return S.completed[ci+'-'+li]||false}
 function setCompleted(ci,li){S.completed[ci+'-'+li]=true;saveStored(LS_PROGRESS,S.completed)}
 function catProgress(ci){let n=0;for(let i=0;i<10;i++)if(getCompleted(ci,i))n++;return n;}
@@ -265,6 +267,7 @@ function initLevel(ci,li,diff){
   S.dragging=null;S._hover=null;
 }
 function transitionToGame(){
+  document.body.classList.add('playing'); // hide menu-only corner buttons (game has its own header)
   gsap.to('#menu',{opacity:0,y:-20,duration:.3,ease:'power2.in',onComplete:()=>{
     document.getElementById('menu').style.display='none';
     document.getElementById('game').style.display='flex';
@@ -546,25 +549,66 @@ function spawnParticles(n){
 // ════════════════════════════════════════
 //  SCORE PANEL & LEADERBOARD
 // ════════════════════════════════════════
-function showScorePanel(){
+// Flow:
+//  • after each level  → show Top 5 ONLY if it's a personal best AND it makes the top 5
+//  • after last level of a category (category complete) → always show Top 10
+async function showScorePanel(){
   const panel=document.getElementById('score-panel');
+  panel.style.display='none';
   const cat=CATEGORIES[S.catIdx],shape=cat.shapes[S.levelIdx];
-  document.getElementById('score-result').innerHTML=
-    `Solved <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`;
-  document.getElementById('lb-title').textContent=cat.name+' — Top 10';
+
+  // Personal best (local), per level
+  const bk=S.catIdx+'-'+S.levelIdx;
+  const prevBest=bestScores[bk];
+  const isBest=prevBest===undefined||S.moves<prevBest;
+  if(isBest){bestScores[bk]=S.moves;saveStored(LS_BEST,bestScores);}
+
+  const categoryEnd=S.mode==='category'&&catProgress(S.catIdx)===10;
+  lbLimit=categoryEnd?10:5;
+
+  if(!Leaderboard.enabled){
+    if(!categoryEnd)return; // per-level shows nothing without a backend
+    setScorePanel(cat.name+' — Top 10',`<b>${esc(cat.name)}</b> complete!`,false);
+    document.getElementById('lb-list').innerHTML='<div class="lb-empty">Leaderboard not set up yet.</div>';
+    revealScorePanel();return;
+  }
+
+  let rows;
+  try{rows=await Leaderboard.top(cat.id,lbLimit);}catch(e){rows=null;}
+
+  if(categoryEnd){
+    const inTop=!rows||rows.length<10||S.moves<rows[9].moves;
+    setScorePanel(cat.name+' — Top 10',
+      `${esc(cat.name)} complete! Solved <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`,
+      isBest&&inTop&&!!rows);
+    renderLbList(document.getElementById('lb-list'),rows,null);
+    revealScorePanel();return;
+  }
+
+  // Per-level: only if a personal best AND it lands in the top 5
+  if(!isBest||rows===null)return;
+  const inTop5=rows.length<5||S.moves<rows[4].moves;
+  if(!inTop5)return;
+  setScorePanel(cat.name+' — Top 5',
+    `New best! <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`,true);
+  renderLbList(document.getElementById('lb-list'),rows,null);
+  revealScorePanel();
+}
+function setScorePanel(title,resultHTML,showForm){
+  document.getElementById('lb-title').textContent=title;
+  document.getElementById('score-result').innerHTML=resultHTML;
   const form=document.getElementById('score-form');
-  if(Leaderboard.enabled){
+  if(showForm){
     form.style.display='flex';
     const nameI=document.getElementById('score-name'),msgI=document.getElementById('score-msg'),btn=document.getElementById('score-submit');
     nameI.value=loadStored(LS_NAME,'')||'';msgI.value='';
-    btn.disabled=false;btn.textContent='Submit score';
-    btn.onclick=submitScore;
-  }else{
-    form.style.display='none';
-  }
+    btn.disabled=false;btn.textContent='Submit score';btn.onclick=submitScore;
+  }else form.style.display='none';
+}
+function revealScorePanel(){
+  const panel=document.getElementById('score-panel');
   panel.style.display='flex';
-  gsap.from(panel,{opacity:0,y:12,duration:.35,delay:.15,ease:'power3.out'});
-  loadLeaderboard(null);
+  gsap.from(panel,{opacity:0,y:12,duration:.35,delay:.05,ease:'power3.out'});
 }
 async function submitScore(){
   const nameI=document.getElementById('score-name'),msgI=document.getElementById('score-msg'),btn=document.getElementById('score-submit');
@@ -576,24 +620,17 @@ async function submitScore(){
   try{
     await Leaderboard.submit({category:cat.id,shape:shape.name,level:S.levelIdx,difficulty:S.diffIdx,mode:S.mode,moves:S.moves,name,message:message||null});
     document.getElementById('score-form').style.display='none';
-    await loadLeaderboard({name,moves:S.moves,message});
+    const rows=await Leaderboard.top(cat.id,lbLimit);
+    renderLbList(document.getElementById('lb-list'),rows,{name,moves:S.moves,message});
   }catch(e){
     btn.disabled=false;btn.textContent='Retry';
     document.getElementById('lb-list').innerHTML='<div class="lb-empty">Could not submit — check your connection.</div>';
   }
 }
-async function loadLeaderboard(me){
-  const list=document.getElementById('lb-list');
-  if(!Leaderboard.enabled){list.innerHTML='<div class="lb-empty">Leaderboard not set up yet.</div>';return;}
-  list.innerHTML='<div class="lb-empty">Loading…</div>';
-  const cat=CATEGORIES[S.catIdx];
-  try{
-    const rows=await Leaderboard.top(cat.id);
-    if(!rows.length){list.innerHTML='<div class="lb-empty">Be the first to make the board!</div>';return;}
-    list.innerHTML=rows.map((r,i)=>renderLbRow(r,i,me)).join('');
-  }catch(e){
-    list.innerHTML='<div class="lb-empty">Could not load leaderboard.</div>';
-  }
+function renderLbList(list,rows,me){
+  if(!rows){list.innerHTML='<div class="lb-empty">Could not load leaderboard.</div>';return;}
+  if(!rows.length){list.innerHTML='<div class="lb-empty">Be the first to make the board!</div>';return;}
+  list.innerHTML=rows.map((r,i)=>renderLbRow(r,i,me)).join('');
 }
 function renderLbRow(r,i,me){
   const mine=me&&r.name===me.name&&r.moves===me.moves&&(r.message||'')===(me.message||'');
@@ -650,6 +687,7 @@ document.getElementById('lb-overlay').addEventListener('pointerdown',e=>{if(e.ta
 // ════════════════════════════════════════
 function goToMenu(){
   clearHint();
+  document.body.classList.remove('playing');
   gsap.to('#game',{opacity:0,y:20,duration:.25,ease:'power2.in',onComplete:()=>{
     document.getElementById('game').style.display='none';
     document.getElementById('menu').style.display='flex';

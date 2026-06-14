@@ -145,6 +145,8 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .lb-btn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:calc(env(safe-area-inset-left,0px) + 62px);z-index:100;width:42px;height:42px;border-radius:12px;border:1px solid var(--card-border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .lb-btn:hover{background:var(--cell-bg);border-color:var(--accent)}
 .lb-btn .material-icons{font-size:22px;color:var(--text)}
+/* In-game these corner buttons would overlap the game header (Back / ↺), so hide them while playing */
+body.playing .sound-toggle,body.playing .theme-toggle,body.playing .help-btn,body.playing .lb-btn{display:none}
 #lb-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.6);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px}
 #lb-overlay.show{display:flex}
 .lbo-card{width:100%;max-width:430px;max-height:86vh;display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--card-border);border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5)}

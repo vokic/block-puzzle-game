@@ -654,7 +654,10 @@ function renderLbRow(r,i,me){
   return `<div class="lb-row${mine?' me':''}">`
     +`<div class="lb-rank${i<3?' top':''}">${i+1}</div>`
     +`<div class="lb-info"><div class="lb-name">${esc(r.name)}</div>`
-    +(r.message?`<div class="lb-msg">${esc(r.message)}</div>`:'')+`</div>`
+    +`<div class="lb-sub">`
+    +(r.shape?`<span class="lb-shape">${esc(r.shape)}</span>`:'')
+    +(r.message?`<span class="lb-msg-txt">${esc(r.message)}</span>`:'')
+    +`</div></div>`
     +`<div class="lb-moves">${r.moves}</div></div>`;
 }
 

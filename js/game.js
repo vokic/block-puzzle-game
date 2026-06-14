@@ -29,7 +29,7 @@ function levelHints(diff){return diff+1}
 // ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
-const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound',LS_NAME='bp-name',LS_BEST='bp-best',LS_HARD='bp-hard';
+const LS_PROGRESS='bp-progress',LS_THEME='bp-theme',LS_SOUND='bp-sound',LS_NAME='bp-name',LS_BEST='bp-best',LS_HARD='bp-hard',LS_SAVE='bp-save';
 function loadStored(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
 function saveStored(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -112,6 +112,7 @@ let S={
 
 const reduceMotion=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches);
 let hardMode=loadStored(LS_HARD,false); // rotation challenge (toggled in Settings)
+let restoring=false;                    // true while re-placing pieces from a saved game (suppress sound/moves)
 let bestScores=loadStored(LS_BEST,{}); // "catIdx-levelIdx" => best (fewest) moves so far
 let lbLimit=1;                          // leaderboard size currently shown (1 per level, 10 at category end)
 let lbShape=null;                       // shape filter for the current panel (per-level) or null (whole category)
@@ -119,6 +120,22 @@ function getCompleted(ci,li){return S.completed[ci+'-'+li]||false}
 function setCompleted(ci,li){S.completed[ci+'-'+li]=true;saveStored(LS_PROGRESS,S.completed)}
 function catProgress(ci){let n=0;for(let i=0;i<10;i++)if(getCompleted(ci,i))n++;return n;}
 function nextUnlocked(ci){for(let i=0;i<10;i++)if(!getCompleted(ci,i))return i;return 10;}
+
+// ── In-progress save/resume ──
+function clearSave(){try{localStorage.removeItem(LS_SAVE)}catch(e){}}
+function saveProgress(){
+  if(restoring||S.won||!S.pieces.length||!document.body.classList.contains('playing'))return;
+  const placements={},rots={};
+  S.pieces.forEach((p,i)=>{rots[i]=p.rot||0;});
+  // anchor of each placed piece = min row/col of its board cells (pieceCells is 0-normalised)
+  const acc={};
+  Object.keys(S.board).forEach(k=>{const idx=S.board[k];const[r,c]=k.split(',').map(Number);
+    if(!acc[idx])acc[idx]=[r,c];else{acc[idx][0]=Math.min(acc[idx][0],r);acc[idx][1]=Math.min(acc[idx][1],c);}});
+  Object.keys(acc).forEach(idx=>{if(S.placed[idx])placements[idx]=acc[idx];});
+  if(!Object.keys(placements).length){clearSave();return;} // nothing placed yet → no save
+  saveStored(LS_SAVE,{mode:S.mode,catIdx:S.catIdx,levelIdx:S.levelIdx,diffIdx:S.diffIdx,hard:hardMode,moves:S.moves,placements,rots});
+}
+function getSave(){const s=loadStored(LS_SAVE,null);return s&&s.placements&&Object.keys(s.placements).length?s:null;}
 
 // ════════════════════════════════════════
 //  MENU
@@ -131,6 +148,7 @@ function buildMenu(){
     <div style="font-size:13px;font-weight:900;letter-spacing:5px;color:var(--accent);opacity:.6">PUZZLE</div>
     <h1>BLOCK PUZZLE</h1>
     <p class="sub">Build shapes, piece by piece</p>
+    ${(()=>{const sv=getSave();const sh=sv&&CATEGORIES[sv.catIdx]&&CATEGORIES[sv.catIdx].shapes[sv.levelIdx];return sh?`<button class="resume-bar" id="resume-btn"><span class="material-icons">history</span>Resume — ${esc(sh.name)}</button>`:'';})()}
     <div class="carousel" id="carousel"></div>
     <div class="divider"></div>
     <div class="quick-play">
@@ -140,6 +158,7 @@ function buildMenu(){
       </div>
     </div>`;
   el.querySelectorAll('.qp-btn').forEach(b=>b.addEventListener('click',()=>startQuick(+b.dataset.d)));
+  const rb=document.getElementById('resume-btn');if(rb)rb.addEventListener('click',resumeSaved);
   renderCarousel(0);
   gsap.from('#menu h1',{opacity:0,y:-15,duration:.4,ease:'power3.out'});
   gsap.from('.carousel',{opacity:0,scale:.9,duration:.5,delay:.1,ease:'back.out(1.4)'});
@@ -285,6 +304,20 @@ function transitionToGame(){
     buildGame();
   }});
 }
+function resumeSaved(){
+  const sv=getSave();if(!sv)return;
+  S.mode=sv.mode;S.catIdx=sv.catIdx;S.levelIdx=sv.levelIdx;S.diffIdx=sv.diffIdx;
+  initLevel(sv.catIdx,sv.levelIdx,sv.diffIdx);
+  if(sv.rots)S.pieces.forEach((p,i)=>{if(sv.rots[i]!=null)p.rot=sv.rots[i];}); // restore exact orientations
+  transitionToGame();
+  // Re-place saved pieces after the board is built (next frame), silently (no sound/moves).
+  setTimeout(()=>{
+    restoring=true;
+    Object.keys(sv.placements).forEach(k=>{const p=sv.placements[k];placePiece(+k,p[0],p[1]);});
+    restoring=false;
+    S.moves=sv.moves||0;updateProgress();
+  },420);
+}
 
 // ════════════════════════════════════════
 //  BUILD GAME UI
@@ -380,7 +413,7 @@ function rotatePiece(idx){
   if(S.won)return;
   S.pieces[idx].rot=(S.pieces[idx].rot+1)%4;
   Sound.pick();
-  buildTray(false);
+  buildTray(false);saveProgress();
 }
 
 // ════════════════════════════════════════
@@ -455,7 +488,8 @@ function canPlace(cells,bR,bC,excl){for(const[r,c]of cells){const k=ky(r+bR,c+bC
 function getCell(r,c){return cellMap.get(ky(r,c));}
 
 function placePiece(idx,bR,bC){
-  clearHint();Sound.place();if(navigator.vibrate)navigator.vibrate(9);S.moves++;
+  clearHint();
+  if(!restoring){Sound.place();if(navigator.vibrate)navigator.vibrate(9);S.moves++;}
   const piece=S.pieces[idx],col=PALETTE[piece.colorIdx%PALETTE.length],pc=pieceCells(piece);
   Object.keys(S.board).forEach(k=>{if(S.board[k]===idx)delete S.board[k];});
   pc.forEach(([r,c])=>{S.board[ky(r+bR,c+bC)]=idx;});
@@ -468,6 +502,7 @@ function placePiece(idx,bR,bC){
     gsap.fromTo(cell,{boxShadow:`0 0 16px ${col}88`},{boxShadow:`0 0 0px ${col}00`,duration:.5,delay:i*.02});
   });
   updateProgress();buildTray(false);checkWin();
+  saveProgress();
 }
 function removePiece(idx){
   const removed=[];
@@ -477,7 +512,7 @@ function removePiece(idx){
     cell.style.background='var(--cell-bg)';cell.style.border='1px solid var(--cell-border)';cell.classList.remove('filled');
     gsap.fromTo(cell,{scale:.8,opacity:.5},{scale:1,opacity:1,duration:.25,ease:'back.out(2)'});
   });
-  updateProgress();
+  updateProgress();saveProgress();
 }
 function shakeBoard(){Sound.bad();if(navigator.vibrate)navigator.vibrate(22);gsap.to('#board-wrap',{x:-5,duration:.05,yoyo:true,repeat:5,ease:'power1.inOut',onComplete:()=>gsap.set('#board-wrap',{x:0})});}
 
@@ -529,7 +564,7 @@ function updateTrayCount(){document.getElementById('tray-count').textContent=Obj
 function checkWin(){
   if(S.won)return;
   if(![...S.targetSet].every(k=>S.board[k]!==undefined)||!Object.keys(S.board).length)return;
-  S.won=true;
+  S.won=true;clearSave();
   if(S.mode==='category')setCompleted(S.catIdx,S.levelIdx);
   celebrateWin();
 }
@@ -770,9 +805,11 @@ function goNextLevel(){
   }});
 }
 function resetLevel(){
-  clearHint();
+  clearHint();clearSave();
   gsap.to('.cell.filled',{scale:0,rotation:gsap.utils.random(-15,15),duration:.2,stagger:.008,ease:'power2.in',onComplete:()=>{
     S.board={};S.placed={};S.won=false;S.moves=0;
+    // Hard mode: re-randomise rotations on restart
+    S.pieces.forEach(p=>{p.rot=hardMode?1+Math.floor(Math.random()*3):0;});
     S.hintsLeft=levelHints(S.diffIdx);S.activeHint=null;S.dragging=null;
     buildGame();
   }});

@@ -10,6 +10,9 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 #menu{display:flex;flex-direction:column;align-items:center;padding:36px 18px 72px;position:relative;z-index:10;justify-content:center;min-height:100vh}
 #menu h1{font-size:38px;font-weight:900;letter-spacing:-1.2px;margin:4px 0;background:var(--brand-gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 #menu .sub{color:var(--sub);font-size:13px;letter-spacing:1px;margin-bottom:34px}
+.resume-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin:-14px 0 26px;padding:11px 22px;border-radius:12px;border:1px solid var(--overlay-border);background:var(--overlay-bg);color:var(--green);font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.resume-bar:hover{background:rgba(0,200,100,.12);transform:translateY(-1px)}
+.resume-bar .material-icons{font-size:19px}
 .carousel{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;margin-bottom:30px}
 .carousel-cat-name{font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--sub);margin-bottom:18px;transition:color .3s}
 .carousel-row{display:flex;align-items:center;gap:18px;width:100%;justify-content:center;margin-bottom:18px}

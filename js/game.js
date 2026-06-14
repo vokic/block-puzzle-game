@@ -41,8 +41,10 @@ const SB_URL=(window.SUPABASE_URL||'').replace(/\/+$/,'');
 const SB_KEY=window.SUPABASE_ANON_KEY||'';
 const Leaderboard={
   enabled:!!(SB_URL&&SB_KEY),
-  async top(category,limit){
-    const url=`${SB_URL}/rest/v1/leaderboard?category=eq.${encodeURIComponent(category)}&select=name,message,moves,shape,created_at&order=moves.asc,created_at.asc&limit=${limit||10}`;
+  async top(category,limit,shape){
+    let url=`${SB_URL}/rest/v1/leaderboard?category=eq.${encodeURIComponent(category)}`;
+    if(shape)url+=`&shape=eq.${encodeURIComponent(shape)}`;
+    url+=`&select=name,message,moves,shape,created_at&order=moves.asc,created_at.asc&limit=${limit||10}`;
     const r=await fetch(url,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
     if(!r.ok)throw new Error('fetch '+r.status);
     return r.json();
@@ -109,7 +111,8 @@ let S={
 };
 
 let bestScores=loadStored(LS_BEST,{}); // "catIdx-levelIdx" => best (fewest) moves so far
-let lbLimit=5;                          // leaderboard size currently shown (5 per level, 10 at category end)
+let lbLimit=1;                          // leaderboard size currently shown (1 per level, 10 at category end)
+let lbShape=null;                       // shape filter for the current panel (per-level) or null (whole category)
 function getCompleted(ci,li){return S.completed[ci+'-'+li]||false}
 function setCompleted(ci,li){S.completed[ci+'-'+li]=true;saveStored(LS_PROGRESS,S.completed)}
 function catProgress(ci){let n=0;for(let i=0;i<10;i++)if(getCompleted(ci,i))n++;return n;}
@@ -554,8 +557,8 @@ function spawnParticles(n){
 //  SCORE PANEL & LEADERBOARD
 // ════════════════════════════════════════
 // Flow:
-//  • after each level  → show Top 1 (the record) ONLY on a new personal best or a new record
-//  • after last level of a category (category complete) → always show Top 10
+//  • after each level  → ALWAYS show the #1 record for that shape; submit form only on a new best/record
+//  • after last level of a category (category complete) → show category Top 10
 async function showScorePanel(){
   const panel=document.getElementById('score-panel');
   panel.style.display='none';
@@ -569,33 +572,43 @@ async function showScorePanel(){
 
   const categoryEnd=S.mode==='category'&&catProgress(S.catIdx)===10;
   lbLimit=categoryEnd?10:1;
+  lbShape=categoryEnd?null:shape.name; // per level: rank by THIS shape; category end: whole category
+
+  const list=document.getElementById('lb-list');
+  const moveStr=`<b>${S.moves}</b> move${S.moves===1?'':'s'}`;
 
   if(!Leaderboard.enabled){
     if(!categoryEnd)return; // per-level shows nothing without a backend
     setScorePanel(cat.name+' — Top 10',`<b>${esc(cat.name)}</b> complete!`,false);
-    document.getElementById('lb-list').innerHTML='<div class="lb-empty">Leaderboard not set up yet.</div>';
+    list.innerHTML='<div class="lb-empty">Leaderboard not set up yet.</div>';
     revealScorePanel();return;
   }
 
   let rows;
-  try{rows=await Leaderboard.top(cat.id,lbLimit);}catch(e){rows=null;}
+  try{rows=await Leaderboard.top(cat.id,lbLimit,lbShape);}catch(e){rows=null;}
 
   if(categoryEnd){
     const inTop=!rows||rows.length<10||S.moves<rows[9].moves;
     setScorePanel(cat.name+' — Top 10',
-      `${esc(cat.name)} complete! Solved <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`,
+      `${esc(cat.name)} complete! Solved <b>${esc(shape.name)}</b> in ${moveStr}`,
       isBest&&inTop&&!!rows);
-    renderLbList(document.getElementById('lb-list'),rows,null);
+    renderLbList(list,rows,null);
     revealScorePanel();return;
   }
 
-  // Per-level: show the single top score, only on a new personal best or a new record (#1)
-  if(rows===null)return;
+  // Per-level: ALWAYS show who holds the best score for this level.
+  // The submit form appears only on a new personal best or a new record (#1).
+  if(rows===null){
+    setScorePanel(shape.name+' — Best',`Solved <b>${esc(shape.name)}</b> in ${moveStr}`,false);
+    renderLbList(list,null,null);
+    revealScorePanel();return;
+  }
   const isRecord=rows.length===0||S.moves<rows[0].moves;
-  if(!isBest&&!isRecord)return;
-  setScorePanel(cat.name+(isRecord?' — New record':' — Top score'),
-    `${isRecord?'New record!':'New best!'} <b>${esc(shape.name)}</b> in <b>${S.moves}</b> move${S.moves===1?'':'s'}`,true);
-  renderLbList(document.getElementById('lb-list'),rows,null);
+  const msg=isRecord?`New record! <b>${esc(shape.name)}</b> in ${moveStr}`
+    :isBest?`New best! <b>${esc(shape.name)}</b> in ${moveStr}`
+    :`Solved <b>${esc(shape.name)}</b> in ${moveStr}`;
+  setScorePanel(shape.name+' — Best',msg,isBest||isRecord);
+  renderLbList(list,rows,null);
   revealScorePanel();
 }
 function setScorePanel(title,resultHTML,showForm){
@@ -624,7 +637,7 @@ async function submitScore(){
   try{
     await Leaderboard.submit({category:cat.id,shape:shape.name,level:S.levelIdx,difficulty:S.diffIdx,mode:S.mode,moves:S.moves,name,message:message||null});
     document.getElementById('score-form').style.display='none';
-    const rows=await Leaderboard.top(cat.id,lbLimit);
+    const rows=await Leaderboard.top(cat.id,lbLimit,lbShape);
     renderLbList(document.getElementById('lb-list'),rows,{name,moves:S.moves,message});
   }catch(e){
     btn.disabled=false;btn.textContent='Retry';

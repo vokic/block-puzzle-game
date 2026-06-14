@@ -77,7 +77,10 @@ body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);disp
 .tray-header{display:flex;justify-content:space-between;padding:0 4px;margin-bottom:5px}
 .tray-label{color:var(--sub);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px}
 #tray-pieces{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-radius:10px;background:var(--tray);border:1px solid var(--card-border);min-height:46px;align-items:center}
-.tray-piece{cursor:grab;padding:4px;border-radius:7px;background:var(--card);border:1px solid var(--card-border);touch-action:none;transition:border-color .2s}
+.tray-piece{position:relative;cursor:grab;padding:4px;border-radius:7px;background:var(--card);border:1px solid var(--card-border);touch-action:none;transition:border-color .2s}
+.rotate-btn{position:absolute;top:-9px;right:-9px;width:24px;height:24px;border-radius:50%;border:1px solid var(--btn-border);background:var(--bg2);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:none;box-shadow:0 2px 8px rgba(0,0,0,.35);z-index:2}
+.rotate-btn .material-icons{font-size:16px}
+.rotate-btn:active{transform:scale(.9)}
 .tray-piece.hinted{border-width:2px}
 
 #drag-ghost{position:fixed;pointer-events:none;z-index:1000;opacity:0;display:none}

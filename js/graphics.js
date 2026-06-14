@@ -100,6 +100,19 @@ function buildPieceSVG(cells,color,size){
   return s+'</svg>';
 }
 
+// Rotate normalized cells `times` × 90° clockwise, kept zero-based normalized.
+function rotateCells(cells,times){
+  let cur=cells.map(c=>c.slice());
+  times=((times%4)+4)%4;
+  for(let t=0;t<times;t++){
+    const maxR=Math.max(...cur.map(c=>c[0]));
+    cur=cur.map(([r,c])=>[c,maxR-r]); // (r,c) -> (c, maxR-r)
+  }
+  return cur;
+}
+// A piece's cells at its current rotation (Hard mode); rot 0 = solution orientation.
+function pieceCells(p){return p.rot?rotateCells(p.normalized,p.rot):p.normalized;}
+
 // Render a faint shape thumbnail (menu preview / next preview)
 function buildThumbSVG(shape,size,color){
   const{cells,gridW,gridH}=parseShape(shape.s);

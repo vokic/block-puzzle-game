@@ -266,6 +266,8 @@ function initLevel(ci,li,diff){
   const np=levelPcs(tc.length,diff);
   const seed=(ci+1)*1000+(li+1)*100+(diff+1)*10+42;
   S.pieces=decompose(tc,np,seed);
+  // Hard mode: spawn each piece pre-rotated (1-3 × 90°) so the player must rotate it back to fit.
+  S.pieces.forEach(p=>{p.rot=hardMode?1+Math.floor(Math.random()*3):0;});
   S.targetCells=tc;S.targetSet=new Set(tc.map(([r,c])=>ky(r,c)));
   S.gridW=gridW;S.gridH=gridH;
   S.board={};S.placed={};S.won=false;S.moves=0;
@@ -357,8 +359,14 @@ function buildTray(animate){
   up.forEach((p,i)=>{
     const col=PALETTE[p.colorIdx%PALETTE.length];
     const el=document.createElement('div');el.className='tray-piece';el.dataset.idx=p.idx;
-    el.innerHTML=buildPieceSVG(p.normalized,col,TRAY_CELL);
+    el.innerHTML=buildPieceSVG(pieceCells(p),col,TRAY_CELL);
     c.appendChild(el);
+    if(hardMode){
+      const rb=document.createElement('button');rb.className='rotate-btn';rb.setAttribute('aria-label','Rotate piece');
+      rb.innerHTML='<span class="material-icons">rotate_right</span>';
+      rb.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();rotatePiece(p.idx);});
+      el.appendChild(rb);
+    }
     if(animate){
       gsap.set(el,{scale:0,opacity:0,rotation:gsap.utils.random(-12,12)});
       gsap.to(el,{scale:1,opacity:1,rotation:0,duration:.45,delay:.08+i*.03,ease:'elastic.out(1,.6)'});
@@ -368,6 +376,12 @@ function buildTray(animate){
     el.addEventListener('pointerdown',e=>startDrag(p.idx,e));
   });
 }
+function rotatePiece(idx){
+  if(S.won)return;
+  S.pieces[idx].rot=(S.pieces[idx].rot+1)%4;
+  Sound.pick();
+  buildTray(false);
+}
 
 // ════════════════════════════════════════
 //  DRAG & DROP
@@ -376,14 +390,14 @@ function startDrag(idx,e){
   if(S.won)return;e.preventDefault();e.stopPropagation();clearHint();Sound.pick();
   const cx=e.clientX,cy=e.clientY;
   if(S.placed[idx])removePiece(idx);
-  const piece=S.pieces[idx],nr=piece.normalized;
+  const piece=S.pieces[idx],nr=pieceCells(piece);
   const mxR=Math.max(...nr.map(c=>c[0])),mxC=Math.max(...nr.map(c=>c[1]));
   const pw=(mxC+1)*STEP,ph=(mxR+1)*STEP;
   S.dragging=idx;
   S.dragOff={x:pw/2,y:ph/2+70};
   const ghost=document.getElementById('drag-ghost');
   const col=PALETTE[piece.colorIdx%PALETTE.length];
-  ghost.innerHTML=buildPieceSVG(piece.normalized,col,CELL);
+  ghost.innerHTML=buildPieceSVG(nr,col,CELL);
   ghost.style.display='block';
   ghost.style.left=(cx-S.dragOff.x)+'px';ghost.style.top=(cy-S.dragOff.y)+'px';
   gsap.set(ghost,{scale:1,x:0,y:0,rotation:0,opacity:1});
@@ -412,9 +426,9 @@ function onMove(e){
     gsap.to(ghost,{left:fx,top:fy,duration:.08,ease:'none',overwrite:true});
   }
   S._hover={r:gr,c:gc};
-  const piece=S.pieces[S.dragging],valid=canPlace(piece.normalized,gr,gc,S.dragging);
+  const piece=S.pieces[S.dragging],pc=pieceCells(piece),valid=canPlace(pc,gr,gc,S.dragging);
   clearHover();
-  piece.normalized.forEach(([r,c])=>{const cell=getCell(r+gr,c+gc);if(cell){cell.classList.add(valid?'hover-good':'hover-bad');hoverCells.push(cell);}});
+  pc.forEach(([r,c])=>{const cell=getCell(r+gr,c+gc);if(cell){cell.classList.add(valid?'hover-good':'hover-bad');hoverCells.push(cell);}});
 }
 function onUp(){
   window.removeEventListener('pointermove',onMove);
@@ -424,7 +438,7 @@ function onUp(){
   const idx=S.dragging,piece=S.pieces[idx],h=S._hover;
   const ghost=document.getElementById('drag-ghost');
   gsap.killTweensOf(ghost);
-  if(h&&canPlace(piece.normalized,h.r,h.c,idx)){
+  if(h&&canPlace(pieceCells(piece),h.r,h.c,idx)){
     placePiece(idx,h.r,h.c);
     gsap.to(ghost,{opacity:0,scale:.5,duration:.2,ease:'power2.in',onComplete:()=>{ghost.style.display='none';}});
   }else{
@@ -442,11 +456,11 @@ function getCell(r,c){return cellMap.get(ky(r,c));}
 
 function placePiece(idx,bR,bC){
   clearHint();Sound.place();if(navigator.vibrate)navigator.vibrate(9);S.moves++;
-  const piece=S.pieces[idx],col=PALETTE[piece.colorIdx%PALETTE.length];
+  const piece=S.pieces[idx],col=PALETTE[piece.colorIdx%PALETTE.length],pc=pieceCells(piece);
   Object.keys(S.board).forEach(k=>{if(S.board[k]===idx)delete S.board[k];});
-  piece.normalized.forEach(([r,c])=>{S.board[ky(r+bR,c+bC)]=idx;});
+  pc.forEach(([r,c])=>{S.board[ky(r+bR,c+bC)]=idx;});
   S.placed[idx]=true;
-  piece.normalized.forEach(([r,c],i)=>{
+  pc.forEach(([r,c],i)=>{
     const cell=getCell(r+bR,c+bC);if(!cell)return;
     gsap.killTweensOf(cell);
     cell.style.background=col;cell.style.border='none';cell.classList.add('filled');
@@ -475,6 +489,7 @@ function useHint(){
   const up=S.pieces.map((_,i)=>i).filter(i=>!S.placed[i]);if(!up.length)return;
   const pick=up[Math.floor(Math.random()*up.length)];
   S.hintsLeft--;S.activeHint=pick;updateHintBtn();Sound.hint();
+  if(hardMode&&S.pieces[pick].rot){S.pieces[pick].rot=0;buildTray(false);} // hint puts the piece in solution orientation
   const piece=S.pieces[pick],col=PALETTE[piece.colorIdx%PALETTE.length];
   piece.cells.forEach(([r,c])=>{const cell=getCell(r,c);if(!cell||cell.classList.contains('filled'))return;
     cell.style.border=`2px solid ${col}88`;
